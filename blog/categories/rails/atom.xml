@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: rails | Cocoa Hunter]]></title>
-  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/rails/atom.xml" rel="self"/>
-  <link href="http://chasseurmic.github.com/cocoahunter/"/>
-  <updated>2013-06-02T23:47:57+02:00</updated>
-  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <link href="http://chasseurmic.github.com/chasseurmic/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/chasseurmic/"/>
+  <updated>2013-06-02T23:56:13+02:00</updated>
+  <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
     <email><![CDATA[chasseurmi@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[RESTful API authentication]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/02/13/restful-api-authentication/"/>
     <updated>2013-02-13T15:37:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/02/13/restful-api-authentication</id>
     <content type="html"><![CDATA[<p>In a couple of our past posts we saw how to build a private API (<a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">Part 1</a> - <a href="http://cocoahunter.com/blog/2012/12/28/api-for-ios-part-2/">Part 2</a> ) that could be used as the backend for an iOS app. Let's take it a step further.</p>
 
 <p>Today I will show you how to use that backend to actually let users log in and out (on the mobile device) from the system by providing a RESTful API for the authentication process. We'll create a basic app from scratch step by step. Bear with me.</p>

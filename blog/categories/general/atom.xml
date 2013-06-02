@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: general | Cocoa Hunter]]></title>
-  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/general/atom.xml" rel="self"/>
-  <link href="http://chasseurmic.github.com/cocoahunter/"/>
-  <updated>2013-06-02T23:47:57+02:00</updated>
-  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <link href="http://chasseurmic.github.com/chasseurmic/blog/categories/general/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/chasseurmic/"/>
+  <updated>2013-06-02T23:56:13+02:00</updated>
+  <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
     <email><![CDATA[chasseurmi@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Hello world!]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2012/12/16/hello-world/"/>
     <updated>2012-12-16T21:33:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2012/12/16/hello-world</id>
     <content type="html"><![CDATA[<p>I always wanted to write my own blog, but for lack of time and patience, I never really did it (even though I tried more than once). Since I recently left my old job as an IT project manager at an healthcare company to start my own business and be a fulltime iOS developer, I’ve been thinking about doing more serious stuff. Long story short: here’s the blog I’d always wanted to write.</p>
 
 <p>But let’s start from the beginning. My name is Michelangelo Chasseur (hence the blog title’s <em>word game</em>) , and I currently work as head of software development for a <a href="http://www.touchwa.re">small Italian company</a> focused on software development for mobile platforms (and by mobile I mean <em>mainly</em> iOS). I’ve never been a fulltime developer until a few months ago. I’ve been working in the IT industry (for Intel and ASUS just to name a couple) for more than 5 years, but I started developing as a professional only in 2010 following an amazing experience at <a href="http://www.bignerdranch.com">BNR</a>. Since then I managed to get a couple of apps on the Apple App Store. Nothing really groundbreaking. And by the way, my academic background is not a technical one, in fact I happen to have a humanities degree in oriental languages...</p>

@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: animations | Cocoa Hunter]]></title>
-  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/animations/atom.xml" rel="self"/>
-  <link href="http://chasseurmic.github.com/cocoahunter/"/>
-  <updated>2013-06-02T23:47:57+02:00</updated>
-  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <link href="http://chasseurmic.github.com/chasseurmic/blog/categories/animations/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/chasseurmic/"/>
+  <updated>2013-06-02T23:56:13+02:00</updated>
+  <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
     <email><![CDATA[chasseurmi@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Basic Interface Styling in iOS]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/01/10/basic-interface-styling-in-ios/"/>
     <updated>2013-01-10T15:44:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/01/10/basic-interface-styling-in-ios</id>
     <content type="html"><![CDATA[<p>Today I want to talk about style. Style is indeed what makes the difference between a good app and a great one. I'm not saying that this tutorial will automatically make your apps look great (you'd certainly need a designer for that), but I'll share some useful tips on how to make it look less anonymous with little effort.</p>
 
 <p>Of course you could have an illustrator provide you with all the needed assets (images and stuff) and then include them in your projects with the <a href="http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAppearance_Protocol/Reference/Reference.html">UIAppearance protocol</a> Apple APIs provide since iOS 6. But wouldn't it be great if you could apply to your application a 'theme' and style it with some simple CSS-style code? Bear with me and I'll show you the magic...</p>

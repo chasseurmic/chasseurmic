@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: MacRuby | Cocoa Hunter]]></title>
-  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/macruby/atom.xml" rel="self"/>
-  <link href="http://chasseurmic.github.com/cocoahunter/"/>
-  <updated>2013-06-02T23:47:57+02:00</updated>
-  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <link href="http://chasseurmic.github.com/chasseurmic/blog/categories/macruby/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/chasseurmic/"/>
+  <updated>2013-06-02T23:56:13+02:00</updated>
+  <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
     <email><![CDATA[chasseurmi@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[RubyMotion. Share Ruby love with your apps.]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/01/16/rubymotion/"/>
     <updated>2013-01-16T14:26:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/01/16/rubymotion</id>
     <content type="html"><![CDATA[<p>In this post and the following one I will talk about RubyMotion.</p>
 
 <p><a href="http://www.RubyMotion.com/">RubyMotion</a> is a runtime for buiding native iOS apps using thethe Ruby language. Ruby, you say? Why Ruby? Well, Ruby is the only other language (the first obviously being Objective-C) officially supported by Apple for developing native apps.</p>

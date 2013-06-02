@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Cocoa Hunter]]></title>
-  <link href="http://chasseurmic.github.com/cocoahunter/atom.xml" rel="self"/>
-  <link href="http://chasseurmic.github.com/cocoahunter/"/>
-  <updated>2013-06-02T23:47:57+02:00</updated>
-  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <link href="http://chasseurmic.github.com/chasseurmic/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/chasseurmic/"/>
+  <updated>2013-06-02T23:56:13+02:00</updated>
+  <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
     <email><![CDATA[chasseurmi@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[OpenGL and GLKit. Intro and basic tutorial - part 1 of 2]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/"/>
     <updated>2013-05-20T23:38:00+02:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial</id>
     <content type="html"><![CDATA[<p>It&#8217;s been a while since I last updated the blog. Lots of contract work and deadlines have made it difficult to keep up with the writing. Anyway, I have jotted down a couple of ideas for some posts, so here&#8217;s the first one.</p>
 
 <p>Lately I&#8217;ve been busy digging deeper into OpenGL (actually OpenGL ES) and GLSL. This is a very very big topic (books about these subjects are often just shy of a thousand pages) and I don&#8217;t pretend to give a thorough explanation about them. What I&#8217;ll try to achieve is to give a very high overview of the technology stack followed by a hands on tutorial of a very basic drawing (a 3D cube). You should end up understanding what are the basic concepts of OpenGL, why and when you should use it, and how you should configure an iOS app to use OpenGL technology together with GLKit (there&#8217;s still a lack of good tutorials on integrating GLKit).</p>
@@ -69,9 +69,9 @@
   
   <entry>
     <title type="html"><![CDATA[RESTful API authentication]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/02/13/restful-api-authentication/"/>
     <updated>2013-02-13T15:37:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/02/13/restful-api-authentication</id>
     <content type="html"><![CDATA[<p>In a couple of our past posts we saw how to build a private API (<a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">Part 1</a> - <a href="http://cocoahunter.com/blog/2012/12/28/api-for-ios-part-2/">Part 2</a> ) that could be used as the backend for an iOS app. Let&#8217;s take it a step further.</p>
 
 <p>Today I will show you how to use that backend to actually let users log in and out (on the mobile device) from the system by providing a RESTful API for the authentication process. We&#8217;ll create a basic app from scratch step by step. Bear with me.</p>
@@ -266,9 +266,9 @@
   
   <entry>
     <title type="html"><![CDATA[RubyMotion. Share Ruby love with your apps.]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/01/16/rubymotion/"/>
     <updated>2013-01-16T14:26:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/01/16/rubymotion</id>
     <content type="html"><![CDATA[<p>In this post and the following one I will talk about RubyMotion.</p>
 
 <p><a href="http://www.RubyMotion.com/">RubyMotion</a> is a runtime for buiding native iOS apps using thethe Ruby language. Ruby, you say? Why Ruby? Well, Ruby is the only other language (the first obviously being Objective-C) officially supported by Apple for developing native apps.</p>
@@ -337,9 +337,9 @@
   
   <entry>
     <title type="html"><![CDATA[Basic Interface Styling in iOS]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/01/10/basic-interface-styling-in-ios/"/>
     <updated>2013-01-10T15:44:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/01/10/basic-interface-styling-in-ios</id>
     <content type="html"><![CDATA[<p>Today I want to talk about style. Style is indeed what makes the difference between a good app and a great one. I&#8217;m not saying that this tutorial will automatically make your apps look great (you&#8217;d certainly need a designer for that), but I&#8217;ll share some useful tips on how to make it look less anonymous with little effort.</p>
 
 <p>Of course you could have an illustrator provide you with all the needed assets (images and stuff) and then include them in your projects with the <a href="http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAppearance_Protocol/Reference/Reference.html">UIAppearance protocol</a> Apple APIs provide since iOS 6. But wouldn&#8217;t it be great if you could apply to your application a &#8216;theme&#8217; and style it with some simple CSS-style code? Bear with me and I&#8217;ll show you the magic&#8230;</p>
@@ -448,9 +448,9 @@
   
   <entry>
     <title type="html"><![CDATA[Sinatra takes the stage, Padrino the cannoli.]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/01/05/sinatra-takes-the-stage/"/>
     <updated>2013-01-05T21:43:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/01/05/sinatra-takes-the-stage</id>
     <content type="html"><![CDATA[<p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
 
 <h2>Easy singing with Sinatra!</h2>
@@ -567,9 +567,9 @@
   
   <entry>
     <title type="html"><![CDATA[API for iOS - Part 2]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2012/12/28/api-for-ios-part-2/"/>
     <updated>2012-12-28T12:57:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2012/12/28/api-for-ios-part-2</id>
     <content type="html"><![CDATA[<p>In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist new objects (we called them Products) in the local database via the very simple interface Rails created for you and query them as JSON from <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>.</p>
 
 <p>I inserted a few objects and this is the JSON I can retrieve from my API:</p>
@@ -855,9 +855,9 @@ In <em>MyTableViewController.h</em> we need to declare an Array where we will st
   
   <entry>
     <title type="html"><![CDATA[API for iOS app - part 1]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2012/12/17/api-for-ios-app/"/>
     <updated>2012-12-17T20:23:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2012/12/17/api-for-ios-app</id>
     <content type="html"><![CDATA[<p>And here we go, with out firts technical post.</p>
 
 <p>One of the problems we, as mobile developers, have to face in almost any mid-to-high complexity project, is integrating our app with a backend. To solve this issue, the market offers today many <a href="http://en.wikipedia.org/wiki/Backend_as_a_service">BaaS</a> solutions. Just to name a few platforms that offer an iOS SDK that could be easily integrated (disclaimer: I’m not endorsing anyone or suggesting that the following are better than others):</p>
@@ -964,9 +964,9 @@ In <em>MyTableViewController.h</em> we need to declare an Array where we will st
   
   <entry>
     <title type="html"><![CDATA[Hello world!]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2012/12/16/hello-world/"/>
     <updated>2012-12-16T21:33:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2012/12/16/hello-world</id>
     <content type="html"><![CDATA[<p>I always wanted to write my own blog, but for lack of time and patience, I never really did it (even though I tried more than once). Since I recently left my old job as an IT project manager at an healthcare company to start my own business and be a fulltime iOS developer, I’ve been thinking about doing more serious stuff. Long story short: here’s the blog I’d always wanted to write.</p>
 
 <p>But let’s start from the beginning. My name is Michelangelo Chasseur (hence the blog title’s <em>word game</em>) , and I currently work as head of software development for a <a href="http://www.touchwa.re">small Italian company</a> focused on software development for mobile platforms (and by mobile I mean <em>mainly</em> iOS). I’ve never been a fulltime developer until a few months ago. I’ve been working in the IT industry (for Intel and ASUS just to name a couple) for more than 5 years, but I started developing as a professional only in 2010 following an amazing experience at <a href="http://www.bignerdranch.com">BNR</a>. Since then I managed to get a couple of apps on the Apple App Store. Nothing really groundbreaking. And by the way, my academic background is not a technical one, in fact I happen to have a humanities degree in oriental languages&#8230;</p>

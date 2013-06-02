@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: games | Cocoa Hunter]]></title>
-  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/games/atom.xml" rel="self"/>
-  <link href="http://chasseurmic.github.com/cocoahunter/"/>
-  <updated>2013-06-02T23:47:57+02:00</updated>
-  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <link href="http://chasseurmic.github.com/chasseurmic/blog/categories/games/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/chasseurmic/"/>
+  <updated>2013-06-02T23:56:13+02:00</updated>
+  <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
     <email><![CDATA[chasseurmi@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[OpenGL and GLKit. Intro and basic tutorial - part 1 of 2]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/"/>
     <updated>2013-05-20T23:38:00+02:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial</id>
     <content type="html"><![CDATA[<p>It's been a while since I last updated the blog. Lots of contract work and deadlines have made it difficult to keep up with the writing. Anyway, I have jotted down a couple of ideas for some posts, so here's the first one.</p>
 
 <p>Lately I've been busy digging deeper into OpenGL (actually OpenGL ES) and GLSL. This is a very very big topic (books about these subjects are often just shy of a thousand pages) and I don't pretend to give a thorough explanation about them. What I'll try to achieve is to give a very high overview of the technology stack followed by a hands on tutorial of a very basic drawing (a 3D cube). You should end up understanding what are the basic concepts of OpenGL, why and when you should use it, and how you should configure an iOS app to use OpenGL technology together with GLKit (there's still a lack of good tutorials on integrating GLKit).</p>

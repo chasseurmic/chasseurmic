@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Sinatra | Cocoa Hunter]]></title>
-  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/sinatra/atom.xml" rel="self"/>
-  <link href="http://chasseurmic.github.com/cocoahunter/"/>
-  <updated>2013-06-02T23:47:57+02:00</updated>
-  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <link href="http://chasseurmic.github.com/chasseurmic/blog/categories/sinatra/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/chasseurmic/"/>
+  <updated>2013-06-02T23:56:13+02:00</updated>
+  <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
     <email><![CDATA[chasseurmi@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Sinatra takes the stage, Padrino the cannoli.]]></title>
-    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/"/>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/01/05/sinatra-takes-the-stage/"/>
     <updated>2013-01-05T21:43:00+01:00</updated>
-    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage</id>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/01/05/sinatra-takes-the-stage</id>
     <content type="html"><![CDATA[<p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
 
 <h2>Easy singing with Sinatra!</h2>

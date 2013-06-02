@@ -1,51 +1,51 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world/</loc>
+        <loc>http://chasseurmic.github.com/chasseurmic/blog/2012/12/16/hello-world/</loc>
         <lastmod>2013-05-20T22:25:04+02:00</lastmod>
     </url>
     <url>
-        <loc>http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/</loc>
+        <loc>http://chasseurmic.github.com/chasseurmic/blog/2012/12/17/api-for-ios-app/</loc>
         <lastmod>2012-12-28T12:58:59+01:00</lastmod>
     </url>
     <url>
-        <loc>http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/</loc>
+        <loc>http://chasseurmic.github.com/chasseurmic/blog/2012/12/28/api-for-ios-part-2/</loc>
         <lastmod>2013-01-05T22:42:06+01:00</lastmod>
     </url>
     <url>
         <loc>
-            http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/
+            http://chasseurmic.github.com/chasseurmic/blog/2013/01/05/sinatra-takes-the-stage/
         </loc>
         <lastmod>2013-01-05T23:49:21+01:00</lastmod>
     </url>
     <url>
         <loc>
-            http://chasseurmic.github.com/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/
+            http://chasseurmic.github.com/chasseurmic/blog/2013/01/10/basic-interface-styling-in-ios/
         </loc>
         <lastmod>2013-01-10T16:46:47+01:00</lastmod>
     </url>
     <url>
-        <loc>http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/</loc>
+        <loc>http://chasseurmic.github.com/chasseurmic/blog/2013/01/16/rubymotion/</loc>
         <lastmod>2013-02-02T23:05:08+01:00</lastmod>
     </url>
     <url>
         <loc>
-            http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication/
+            http://chasseurmic.github.com/chasseurmic/blog/2013/02/13/restful-api-authentication/
         </loc>
         <lastmod>2013-02-13T16:48:14+01:00</lastmod>
     </url>
     <url>
         <loc>
-            http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/
+            http://chasseurmic.github.com/chasseurmic/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/
         </loc>
         <lastmod>2013-06-02T19:14:32+02:00</lastmod>
     </url>
     <url>
-        <loc>http://chasseurmic.github.com/cocoahunter/blog/archives/</loc>
+        <loc>http://chasseurmic.github.com/chasseurmic/blog/archives/</loc>
         <lastmod>2013-06-02T19:14:32+02:00</lastmod>
     </url>
     <url>
-        <loc>http://chasseurmic.github.com/cocoahunter/</loc>
+        <loc>http://chasseurmic.github.com/chasseurmic/</loc>
         <lastmod>2013-06-02T19:14:32+02:00</lastmod>
     </url>
 </urlset>
