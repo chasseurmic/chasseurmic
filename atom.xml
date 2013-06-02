@@ -1,0 +1,986 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Cocoa Hunter]]></title>
+  <link href="http://chasseurmic.github.com/cocoahunter/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/cocoahunter/"/>
+  <updated>2013-06-02T23:47:57+02:00</updated>
+  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <author>
+    <name><![CDATA[Michelangelo Chasseur]]></name>
+    <email><![CDATA[chasseurmi@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[OpenGL and GLKit. Intro and basic tutorial - part 1 of 2]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/"/>
+    <updated>2013-05-20T23:38:00+02:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial</id>
+    <content type="html"><![CDATA[<p>It&#8217;s been a while since I last updated the blog. Lots of contract work and deadlines have made it difficult to keep up with the writing. Anyway, I have jotted down a couple of ideas for some posts, so here&#8217;s the first one.</p>
+
+<p>Lately I&#8217;ve been busy digging deeper into OpenGL (actually OpenGL ES) and GLSL. This is a very very big topic (books about these subjects are often just shy of a thousand pages) and I don&#8217;t pretend to give a thorough explanation about them. What I&#8217;ll try to achieve is to give a very high overview of the technology stack followed by a hands on tutorial of a very basic drawing (a 3D cube). You should end up understanding what are the basic concepts of OpenGL, why and when you should use it, and how you should configure an iOS app to use OpenGL technology together with GLKit (there&#8217;s still a lack of good tutorials on integrating GLKit).</p>
+
+<!-- more -->
+
+
+<h2>What is OpenGL?</h2>
+
+<p><a href="http://www.opengl.org/">OpenGL</a>, which stands for Open Graphics Library, is a cross-language, multi-platform API for rendering 2D and 3D computer graphics. Here I&#8217;ll be talking specifically about the ES (embedded system) version which is the one in use on mobile devices (iOS and Android). Just to give some context, the main competitor of OpenGL is <a href="http://en.wikipedia.org/wiki/Microsoft_Direct3D">D3D</a> (or Direct3D), a Windows technology part of the well-known DirectX API. If you want to learn more about the history of the two competing technolgies and how they evolved, I strongly encourage reading <a href="http://programmers.stackexchange.com/questions/60544/why-do-game-developers-prefer-windows">this excellent StackExchange thread</a>.</p>
+
+<p>Simply put, OpenGL is a way of programming the GPU and it is at the heart of almost everything we see on a computer / smartphone / tablet screen nowadays. Even UIKit sits on top of OpenGL to do its drawing. It&#8217;s just hidden and abstracted into more developer friendly methods, but that&#8217;s the one technology behind graphics rendering.</p>
+
+<p>In Apple&#8217;s technology stack there are different frameworks to do different things. You should use <a href="http://developer.apple.com/library/ios/#documentation/CoreGraphics/Reference/CoreGraphics_Framework/_index.html">CoreGraphics</a> and <a href="http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Conceptual/CoreImaging/ci_intro/ci_intro.html">CoreImage</a> to deal with images and filters, <a href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html">CoreAnimation</a> to animate views, <a href="http://developer.apple.com/library/mac/#documentation/3DDrawing/Conceptual/SceneKit_PG/Introduction/Introduction.html">SceneKit</a> (at the moment on OS X only, but probably soon to be seen on iOS too) to manage 3D objects. So why and when should you use OpenGL. For short: when you want to be able to access the powerful features of the graphics card (GPU) of your device. And by the way, at the moment, OpenGL is the only way of displaying a 3D object in a native iOS app.</p>
+
+<p>As a side note, if someone told you that OpenGL is the best suited and most powerful tool to make videogames, that&#8217;s only part of the truth. Certainly OpenGL powers all modern games (except for those running on MSFT D3D), but hardly any of them (apart probably from big studios) are designed by writing code from scratch. And if you&#8217;re interested in such topics, then you might want to check out other frameworks (whether 2D or 3D) that have a higher level of abstraction. I&#8217;ll try and write a future post about some viable options for iOS developers like <a href="http://www.cocos2d-iphone.org/">Cocos2D</a>, <a href="http://www.coronalabs.com/products/corona-sdk/">Corona SDK</a> and <a href="http://unity3d.com/">Unity3D</a>.</p>
+
+<h2>OpenGL ES</h2>
+
+<p>So, let&#8217;s focus on OpenGL ES. Most of the things we&#8217;re going to cover also apply to OpenGL, some of them are specific to the embedded version. From now on when I&#8217;ll say OpenGL, I&#8217;ll mean the ES version. Let&#8217;s see briefly a few key points that are at the heart of OpenGL:</p>
+
+<ul>
+<li><strong>state machine</strong>: OpenGL is a state machine which means that when you set an option or you bind a buffer, that option or that buffer will be in use until you &#8216;disable&#8217; them. As an example <code>glEnable(GL_DEPTH_TEST);</code> will enable the depth testing feature of OpenGL (which helps deciding which elements of a rendered scene are visible, and which are hidden) and as such it will remain until explicitly disabled;</li>
+<li><strong>coordinate system</strong>: OpenGL coordinate system is different from the one used by UIKit in that it has its origin centered on the screen. With an overly simplistic explantion, I&#8217;d say that by mapping a 3D space, its <code>x = 0, y = 0, z = 0</code> coordinates will be at the center of your device&#8217;s screen. Furthermore, without applying matrix transformations to the view, plane coordinates will go from (-1, -1) / lower left corner of the screen, to (1, 1) / upper right corner of the screen. More detailed information <a href="http://www.falloutsoftware.com/tutorials/gl/gl0.htm">can be found here</a>;</li>
+<li><strong>vertices</strong>: vertices represent the data associated with the 3D objects you want OpenGL to render onscreen. Vertex data is what you need to load into the GPU so that the vertex shader can process it. Vertices are usually defined by their position (in a 3D space), color, normals and eventually associated texture;</li>
+<li><strong>working with primitives</strong>: finally you have to tell OpenGL how to interpret the stream of data you passed into the sahders by definig how the primitives, i.e. points, lines and triangles, shoul dbe drawn (more on this in the upcoming tutorial).</li>
+</ul>
+
+
+<h2>OpenGL ES v. 1 vs v. 2</h2>
+
+<p>From iOS 3.0 onwards Apple supports OpenGL ES 2 and has strongly encouraged developers to shift towards the latest version of the graphics library (often encountering some resistance). The main difference between v.1 and v.2 is what it&#8217;s called the <em>programmable pipeline</em>. Basically OpenGL ES 2 offers and <em>requires</em> you to define your own shaders (specific programs that are executed on the GPU instead of the CPU).</p>
+
+<p>While in v.1 you could do away with providing to the GPU anything else than raw data, in v.2 you need to define your own shaders. Meaning: more power, more work for the developer. OpenGL ES v.2 in fact requires you to write:</p>
+
+<ul>
+<li>a <strong>vertex shader</strong> which applies computations (transformations) once for each vertex passed thru the pipeline;</li>
+<li>a <strong>fragment shader</strong> which applies color or texture data to the fragment, i.e. after the primitive has been rasterized.</li>
+</ul>
+
+
+<p>Given that this was one of the main reasons developers were not moving towards v.2, Apple introduced - with iOS 5 - a new framework, GLKit.</p>
+
+<h2>GLKit</h2>
+
+<p>This is going to be the last bit of theory before taking care of some real stuff. Suffice to say that <a href="https://developer.apple.com/library/ios/#documentation/GLkit/Reference/GLKit_Collection/_index.html">GLKit</a> provides some facilities to take care of some of the harder bits and repetitive OpenGL stuff. Apart from some useful math utilities to deal with matrices, quaternions, affine and homogeneous transformations and such other scaring entities, GLKit introduced <code>GLKBaseEffect</code>, a class that takes away all the complexity of shaders. The tutorial we&#8217;ll be focusing on in part 2 of this post (to come briefly) will show how to set up a <code>GLKViewController</code> with an embedded <code>GLKView</code> by making use of the base effect.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RESTful API authentication]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication/"/>
+    <updated>2013-02-13T15:37:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication</id>
+    <content type="html"><![CDATA[<p>In a couple of our past posts we saw how to build a private API (<a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">Part 1</a> - <a href="http://cocoahunter.com/blog/2012/12/28/api-for-ios-part-2/">Part 2</a> ) that could be used as the backend for an iOS app. Let&#8217;s take it a step further.</p>
+
+<p>Today I will show you how to use that backend to actually let users log in and out (on the mobile device) from the system by providing a RESTful API for the authentication process. We&#8217;ll create a basic app from scratch step by step. Bear with me.</p>
+
+<!-- more -->
+
+
+<p>First of all, let&#8217;s fire the terminal and create a new rails app: <code>rails new AuthTest</code>. Then <code>cd</code> into the newly created directory. Open your Gemfile and add the following line to the end of the file as follows:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>devise</code> is an awesome gem to deal with authentication. You can read more about it on the official <a href="https://github.com/plataformatec/devise">Github page</a> or watch the very good screencasts from Ryan Bates on <a href="http://railscasts.com/episodes?utf8=%E2%9C%93&amp;search=devise">Railscasts</a>.</p>
+
+<p>You can now run the following command in the terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>bundle install
+</span><span class='line'>rails g devise:install
+</span><span class='line'>rails g devise User
+</span><span class='line'>rake db:migrate</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We have now everything we need to manage users. The <code>rails g devise User</code> has scaffolded a devise model called User. Let&#8217;s open it (/app/models/user.rb) and modify it by adding <code>:token_authenticatable</code> in the <code>devise</code> section of the file. This will let the user authenticate thru a token that our backend will generate and that mobile client will use when querying the web application.</p>
+
+<p>Now let&#8217;s make some changed in the config (/config/initializers/devise.rb):</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">skip_session_storage</span> <span class="o">=</span> <span class="o">[</span><span class="ss">:http_auth</span><span class="p">,</span> <span class="ss">:token_auth</span><span class="o">]</span>
+</span><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">token_authentication_key</span> <span class="o">=</span> <span class="ss">:auth_token</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To understand what we just did, you can read more in the config file just above the methods you&#8217;ve just changed. Devise is very well documented.</p>
+
+<p>We also need to generate a migration to add an <code>authentication_token</code> field to the Users table where the token will be stored as a string. Run <code>rails g migration AddTokenToUsers authentication_token</code>. Your newly generated migration file should look like this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">AddTokenToUsers</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
+</span><span class='line'>    <span class="n">add_column</span> <span class="ss">:users</span><span class="p">,</span> <span class="ss">:authentication_token</span><span class="p">,</span> <span class="ss">:string</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&#8217;s scaffold a new resource, the one only authenticated users will be able to access. Run <code>rails g scaffold Product name:string description:text</code>.</p>
+
+<p>Let&#8217;s open <code>products_controller.rb</code> and modify it as follows:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ProductsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:authenticate_user!</span>
+</span><span class='line'><span class="c1">#    ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Migrate (<code>rake db:migrate</code>) your database again.</p>
+
+<p>Let&#8217;s also delete <code>public/index.html</code> and modify our <code>routes.rb</code> file so that our root page is going to be the products controller index action:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">AuthTest</span><span class="o">::</span><span class="no">Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">resources</span> <span class="ss">:products</span>
+</span><span class='line'>  <span class="n">root</span> <span class="ss">:to</span> <span class="o">=&gt;</span> <span class="s1">&#39;products#index&#39;</span>
+</span><span class='line'>  <span class="n">devise_for</span> <span class="ss">:users</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you now run your server (<code>rails s</code>) you&#8217;ll see that your app is going to ask you to login.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/devise-auth-api/api-auth1.png"></p>
+
+<p>Obviously we currently haven&#8217;t generated any users, so let&#8217;s go ahead and create one. Click on sign up and complete the process. You may also add a couple of Products just to make sure everything works alright.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/devise-auth-api/api-auth2.png"></p>
+
+<p>If you&#8217;ve managed to make everything run up to this point, we can now move to the juicy part. To authenticate the user we&#8217;ll be subclassing Devise::SessionsController with our own controller that basically runs a check on a given username and password and, if valid, returns a token. In a way, users are signed in to the backend as long as they have a valid authentication token. It&#8217;s up to you the decision relative to the expiration policies of the token.</p>
+
+<p>Create a new file in the <code>/app/controllers</code> directory and name it <code>sessions_controller.rb</code>. Paste in it the following code:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">Devise</span><span class="o">::</span><span class="no">SessionsController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:authenticate_user!</span><span class="p">,</span> <span class="ss">:except</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:create</span><span class="p">,</span> <span class="ss">:destroy</span><span class="o">]</span>
+</span><span class='line'>  <span class="n">respond_to</span> <span class="ss">:json</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="n">resource</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_for_database_authentication</span><span class="p">(</span><span class="ss">:email</span> <span class="o">=&gt;</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">invalid_login_attempt</span> <span class="k">unless</span> <span class="n">resource</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">valid_password?</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">sign_in</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">resource</span><span class="o">.</span><span class="n">ensure_authentication_token!</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:json</span><span class="o">=&gt;</span> <span class="p">{</span><span class="ss">:success</span><span class="o">=&gt;</span><span class="kp">true</span><span class="p">,</span> <span class="ss">:auth_token</span><span class="o">=&gt;</span><span class="n">resource</span><span class="o">.</span><span class="n">authentication_token</span><span class="p">,</span> <span class="ss">:email</span><span class="o">=&gt;</span><span class="n">resource</span><span class="o">.</span><span class="n">email</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">invalid_login_attempt</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">destroy</span>
+</span><span class='line'>    <span class="n">resource</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_for_database_authentication</span><span class="p">(</span><span class="ss">:email</span> <span class="o">=&gt;</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">resource</span><span class="o">.</span><span class="n">authentication_token</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>    <span class="n">resource</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>    <span class="n">render</span> <span class="ss">:json</span><span class="o">=&gt;</span> <span class="p">{</span><span class="ss">:success</span><span class="o">=&gt;</span><span class="kp">true</span><span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">protected</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">invalid_login_attempt</span>
+</span><span class='line'>    <span class="n">render</span> <span class="ss">:json</span><span class="o">=&gt;</span> <span class="p">{</span><span class="ss">:success</span><span class="o">=&gt;</span><span class="kp">false</span><span class="p">,</span> <span class="ss">:message</span><span class="o">=&gt;</span><span class="s2">&quot;Error with your login or password&quot;</span><span class="p">},</span> <span class="ss">:status</span><span class="o">=&gt;</span><span class="mi">401</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you have to tell your <code>routes.rb</code> file that Devise should be using our custom controller when dealing with user sessions instead of the standard one. Modify you Routes file accordingly:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># ...</span>
+</span><span class='line'><span class="n">devise_for</span><span class="p">(</span><span class="ss">:users</span><span class="p">,</span> <span class="ss">:controllers</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:sessions</span> <span class="o">=&gt;</span> <span class="s2">&quot;sessions&quot;</span> <span class="p">})</span>
+</span><span class='line'><span class="c1"># ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you&#8217;ve followed every step along the way, everything should now be in place. Fire up your server (<code>rails s</code>) and open another terminal window. Now you should be able to <code>curl</code> into youw web app and get back - if credentials are correct - the token you&#8217;ll use for your subsequent queries. Try running the following (with the email and password params you used at sign up):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl http://localhost:3000/users/sign_in --data "email=admin@example.com&password=password"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should get a response similar to:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{"success":true,"auth_token":"hfNklifqaFBkvokWoYzC","email":"admin@example.com"}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can now run a query form the terminal with the following command <code>curl http://localhost:3000/products.json --data "auth_token=hfNklifqaFBkvokWoYzC"</code> and you should get back the JSON from your backend.</p>
+
+<p>We&#8217;re done! Just use this very same technique from your mobile client and store your token to use in your queries.</p>
+
+<p>You can download the full source code of the above app from <a href="https://github.com/chasseurmic/devise-mobile-auth">this Github repo</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RubyMotion. Share Ruby love with your apps.]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/"/>
+    <updated>2013-01-16T14:26:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion</id>
+    <content type="html"><![CDATA[<p>In this post and the following one I will talk about RubyMotion.</p>
+
+<p><a href="http://www.RubyMotion.com/">RubyMotion</a> is a runtime for buiding native iOS apps using thethe Ruby language. Ruby, you say? Why Ruby? Well, Ruby is the only other language (the first obviously being Objective-C) officially supported by Apple for developing native apps.</p>
+
+<p>While <a href="hthettp://macruby.org/">MacRuby</a>, a Ruby interpreter on top of the Objective-C runtime providing a seamless bridge between Ruby and OS X <em>Cocoa</em> ecosystem, is an open-source project started in 2007 and backed by Apple itself, RubyMotion is a commercial project carried out by a team of engineers led by the very same individual, Laurent Sansonetti, that successfully launched MacRuby.</p>
+
+<!-- more -->
+
+
+<p>In the last few years some prominent Apple managers have gone as far as <a href="http://arstechnica.com/apple/2010/06/copland-2010-revisited/">predicting that Ruby could be Apple&#8217;s next language</a>. Others are more skeptical about the subject, mainly because Objective-C is something Apple can directly control, and Ruby isn&#8217;t. I tend to agree with the latter opinion, but it&#8217;s still darn interesting to have an alternative. And it&#8217;s even more interesting when we&#8217;re talking about Ruby, a fast, fun, dynamic and prodcutive language. That&#8217;s why RubyMotion, announced only in May 2012, is gaining momentum.</p>
+
+<p>RubyMotion can leverage all the features provided by the Cocoa Touch APIs and at the same time harness the power and expressiveness of Ruby. To be more technical, by sharing the same object model infrastructure, Objective-C and RubyMotion APIs can be interchangeable at no additional performance expense. For example – in more concrete terms arrays inherits both from <code>NSArray</code> (Objective-C) and <code>Enumerable</code> (Ruby), allowing you to do something like:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="vi">@tableData</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">to_a</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">tableView</span><span class="p">,</span> <span class="n">numberOfRowsInSection</span><span class="p">:</span> <span class="n">section</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@tableData</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">tableView</span><span class="p">,</span> <span class="n">cellForRowAtIndexPath</span><span class="p">:</span> <span class="n">indexPath</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">#setup the cell...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">cell</span><span class="o">.</span><span class="n">textLabel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="vi">@tableData</span><span class="o">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="o">].</span><span class="n">to_s</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">cell</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#8230;which to me seems pretty cool!</p>
+
+<p>Another cool feature is that you have at your disposal kind of an interactive <a href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a>: basically you simply build and run your app by running the <code>rake</code> command from the terminal, and while the Simulator is open, the Terminal should be displaying an <em>irb</em>-esque prompt where you can play in real time with you running app (you can for example change at runtime the attributes of your views).</p>
+
+<p>For a live demo and more infos on RubyMotion you should definetely check out this <a href="http://pragmaticstudio.com/screencasts/rubymotion">PragProg&#8217;s free screencast</a>.</p>
+
+<p>I&#8217;ve been playing with RubyMotion for the last couple of months and I like it. I really do. Anyway, I still feel more comfortable with Objective-C, although there are definetely some advantages that the Ruby language can count on (mainly when working with data - arrays, hashes and the like).</p>
+
+<p>To say it all, in my opinion there are still a couple of drawbacks: code autocompletion and error detection. Both of these <em>issues</em> can be related to the IDE: Xcode. Let&#8217;s run thru them one at a time:</p>
+
+<ul>
+<li><strong>error detection</strong>: the new Apple LLVM engine is constantly working in the background to understand the code and to alert the developer of coding mistakes. This is a feature that a dynamic language will probably never achieve. At the end of the day, Rubymotion is just plain Ruby code (with some little tweaks added to deal with <em>keywords</em> contained in Objective-C method syntax). You can use any text editor (TextMate, Sublime Text, <em>put here your favorite text editor</em>) to get the job done. Text editors won&#8217;t give you error-detection.</li>
+<li><strong>autocompletion</strong>: no auto-completion in your text editor, means not having the means to tap easuly into Cocoa touch APIs. Glad for you if you can remember a method like <code>- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath</code>, but for mere mortals I think this is a no brainer feature to count on. Of course you can have snippets in TextMate or Sublime, but they can&#8217;t stand a chance in comparison to what Xcode can do.</li>
+</ul>
+
+
+<p>[EDIT] <a href="http://blog.jetbrains.com/ruby/2012/12/enjoy-rubymine-enoki-eap-while-were-all-still-alive/">JetBrains has recently announced</a> that the next version of RubyMine will support RubyMotion (with autocompletion features). You can already check out their <a href="http://confluence.jetbrains.com/display/RUBYDEV/RubyMine+EAP">early access preview by downloading it here</a>. This seems promising and could speed up the development process of a RubyMotion app by an order of magnitude!</p>
+
+<p>In the next episode I&#8217;ll talk about what you can actually do with RubyMotion by providing a couple of concrete example.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Basic Interface Styling in iOS]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/"/>
+    <updated>2013-01-10T15:44:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios</id>
+    <content type="html"><![CDATA[<p>Today I want to talk about style. Style is indeed what makes the difference between a good app and a great one. I&#8217;m not saying that this tutorial will automatically make your apps look great (you&#8217;d certainly need a designer for that), but I&#8217;ll share some useful tips on how to make it look less anonymous with little effort.</p>
+
+<p>Of course you could have an illustrator provide you with all the needed assets (images and stuff) and then include them in your projects with the <a href="http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAppearance_Protocol/Reference/Reference.html">UIAppearance protocol</a> Apple APIs provide since iOS 6. But wouldn&#8217;t it be great if you could apply to your application a &#8216;theme&#8217; and style it with some simple CSS-style code? Bear with me and I&#8217;ll show you the magic&#8230;</p>
+
+<!-- more -->
+
+
+<h2>Pixate</h2>
+
+<p>First off, there&#8217;s <a href="http://www.piaxte.com">Pixate</a>, a project originally backed on KickStarter. Pixate is an iOS framework - currently in private beta - that will be probably released under a commercial license during the first quarter of 2013. Rumors say that it&#8217;s going to cost around USD 200 per seat. Pixate styles native controls using generated bitmaps, allowing applications to take full advantage of hardware acceleration. In contrast to most asset workflows, the Pixate Engine renders and caches bitmap content dynamically as needed at runtime, providing flexibility and performance. Basically, this means that we can easily style almost any element inside an iOS app just by providing a CSS stylesheet.</p>
+
+<p>For example, if we have a UIButton, we could define it as such:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">UIButton</span> <span class="o">*</span><span class="n">button</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIButton</span> <span class="nl">buttonWithType:</span><span class="n">UIButtonTypeRoundedRect</span><span class="p">];</span>
+</span><span class='line'><span class="n">button</span><span class="p">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span>
+</span><span class='line'><span class="p">[</span><span class="n">button</span> <span class="nl">setTitle:</span><span class="s">@&quot;My Button&quot;</span> <span class="nl">forState:</span><span class="n">UIControlStateNormal</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Setting the styleId of the button for the CSS</span>
+</span><span class='line'><span class="n">button</span><span class="p">.</span><span class="n">styleId</span> <span class="o">=</span> <span class="s">@&quot;myButton&quot;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you would be able to define its style in the .css file:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nf">#myButton</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">color</span>           <span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">border</span><span class="o">-</span><span class="n">radius</span>   <span class="o">:</span> <span class="m">10px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">border-color</span>    <span class="o">:</span> <span class="nb">blue</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">border-width</span>    <span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Take a look at the final result:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/20130110_styling/styling1.png"></p>
+
+<p>Pretty cool, huh? If you wanna try out Pixate you can <a href="http://pixatesurvey.herokuapp.com/">signup here</a> or just wait a couple of weeks before it gets in the wild.</p>
+
+<h2>NUI</h2>
+
+<p>Alternatively, if you don&#8217;t want to spend a single dime, you can  check out NUI, an open-source project maintained by Tom Benner, <a href="https://github.com/tombenner/nui">here</a>. NUI is a drop-in UI kit for iOS that lets you style UI elements using a CSS-like stylesheet. With NUI you can style an entire app in minutes. The concept is pretty similar to that of Pixate. The difference is in that your UI elements should be declared as being instances of predefined NUI subclasses (NUILargeButton, NUIButton, NUITextField, etc.). Then, inside a <code>.nss</code> file you can define all the styles. The syntax is very CSS-y:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nt">Button</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">background-color</span><span class="o">-</span><span class="k">top</span><span class="o">:</span> <span class="m">#FFFFFF</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">background-color</span><span class="o">-</span><span class="k">bottom</span><span class="o">:</span> <span class="o">@</span><span class="n">primaryBackgroundColorBottom</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">border-color</span><span class="o">:</span> <span class="o">@</span><span class="n">primaryBorderColor</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">border-width</span><span class="o">:</span> <span class="o">@</span><span class="n">primaryBorderWidth</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">font</span><span class="o">-</span><span class="k">color</span><span class="o">:</span> <span class="o">@</span><span class="n">primaryFontColor</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">font</span><span class="o">-</span><span class="k">color</span><span class="o">-</span><span class="n">highlighted</span><span class="o">:</span> <span class="o">@</span><span class="n">secondaryFontColor</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">font</span><span class="o">-</span><span class="n">name</span><span class="o">:</span> <span class="o">@</span><span class="n">secondaryFontName</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">font-size</span><span class="o">:</span> <span class="m">18</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">height</span><span class="o">:</span> <span class="m">37</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">corner</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">7</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nt">LargeButton</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">height</span><span class="o">:</span> <span class="m">50</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">font-size</span><span class="o">:</span> <span class="m">20</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">corner</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">10</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&#8217;s an example of what you can do. Turn this:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/20130110_styling/styling2.png"></p>
+
+<p>into this:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/20130110_styling/styling3.png"></p>
+
+<p>You can download a <a href="https://github.com/tombenner/nui/archive/master.zip">sample project here</a> to check it out. To see a list of currently stylable classes and supported properties, take a look at the <a href="https://github.com/tombenner/nui">Github page of the project</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sinatra takes the stage, Padrino the cannoli.]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/"/>
+    <updated>2013-01-05T21:43:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage</id>
+    <content type="html"><![CDATA[<p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
+
+<h2>Easy singing with Sinatra!</h2>
+
+<p>Sinatra is technically a Ruby DSL, a <em>domain specific language</em>. It’s not a framework, it’s kind of a <em>specific language layer</em> – on top of Ruby and Thin – that lets you implement in an easy and fast way a working web server.</p>
+
+<p>Let’s get straight to an example. The following code sets up a server and responds with a simple <em>&#8220;Hello world!&#8221;</em> to each request made to the base url. Create a new <em>.rb</em> file and copy the following snippet in it:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+</span><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="s2">&quot;Hello world!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then run it from the terminal with <code>ruby your_file_name.rb</code>. You should see something similar to:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>> ruby sinatra.rb 
+</span><span class='line'>== Sinatra/1.3.3 has taken the stage on 4567 for development with backup from Thin
+</span><span class='line'>>> Thin web server (v1.3.1 codename Triple Espresso)
+</span><span class='line'>>> Maximum connections set to 1024
+</span><span class='line'>>> Listening on 0.0.0.0:4567, CTRL+C to stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can visit <em>localhost:4567</em> and, voilà, you webpage is served!</p>
+
+<!-- more -->
+
+
+<p>The good thing about Sinatra is that it&#8217;s lightweight, fast and very easy to setup. Plus the code it&#8217;s neat and readable: all the CRUD methods are explicit in that the routes are defined with HTTP verbs (get, post, put, delete). The bad thing – which for someone might be a good thing – is that there&#8217;s no <em>magic</em> in it: I mean no helpers, no generators, not all the little nice conventions Rails has accustomed us to and is renowned for. If you want to setup even a simple API in Sinatra you have to code almost everything by hand. That&#8217;s where Padrino comes in…</p>
+
+<h2>Padrino</h2>
+
+<p>Padrino is a web framework for Sinatra. Padrino is Sinatra at the core; according to Padrino&#8217;s project <a href="http://www.padrinorb.com/">home page</a>, <em>Padrino was created to make it fun and easy to code more advanced web applications while still adhering to the spirit that makes Sinatra great!</em>.</p>
+
+<p>Padrino combines the simplicity of Sinatra with some of the more useful functions of Rails (generators, basic scaffolding, helpers, form builders…). And it&#8217;s even got a nice admin panel right out of the box (Django-style if you know what I mean) which is a very useful feature if you want to run an API where only a predefined number of admins can insert and modify data.</p>
+
+<h3>API with Padrino</h3>
+
+<p>We&#8217;ll now build the same API we built in a <a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">previous post</a> so you&#8217;ll see how Padrino fares against Rails.</p>
+
+<p>Run the following code in you terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install padrino
+</span><span class='line'>padrino g project padrino-api -e haml -d activerecord -b
+</span><span class='line'>cd padrino-api
+</span><span class='line'>padrino g admin
+</span><span class='line'>padrino g model product name:string -a app
+</span><span class='line'>padrino rake ar:migrate seed
+</span><span class='line'>padrino g admin_page product
+</span><span class='line'>padrino start</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;s it! You&#8217;re ready to go. What you&#8217;ve just done is:</p>
+
+<ul>
+<li>creating an app;</li>
+<li>scaffolding the admin panel;</li>
+<li>creating a basic product model (with simply a name of <em>string</em> type);</li>
+<li>creating the tables in the database and seeding it with some informations (email, password) of the admin user;</li>
+<li>generating the necessary views inside the admin panel to manage your newly created model;</li>
+<li>starting the app.</li>
+</ul>
+
+
+<p>If you now visit <em>localhost:3000/admin</em> you should be able to login and see a section dedicated to your Product model. You can now start adding some objects to your DB. One last thing before being able to consume the API: inside your project directory, in you <em>app.rb</em> file add the following snippet.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="vi">@products</span> <span class="o">=</span> <span class="no">Product</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>  <span class="vi">@products</span><span class="o">.</span><span class="n">to_json</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This code is basically telling your app that whenever a request hits the base url it has to retrieve all the <em>Product</em> objects, serialize them and respond with some JSON. That&#8217;s it. If you now visit <em>localhost:3000/</em> you should get something like this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span>
+</span><span class='line'>  <span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:23:42+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:07+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'>  <span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Movie&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'>  <span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;iPhone&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cool, huh? In a couple of minutes we have defined and set up an API. Of course it&#8217;s still very basic stuff, but with some polishing it shouldn&#8217;t take you much effort to build a more solid API for your mobile app.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[API for iOS - Part 2]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/"/>
+    <updated>2012-12-28T12:57:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2</id>
+    <content type="html"><![CDATA[<p>In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist new objects (we called them Products) in the local database via the very simple interface Rails created for you and query them as JSON from <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>.</p>
+
+<p>I inserted a few objects and this is the JSON I can retrieve from my API:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Movie&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;iPhone&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since each object has a property called name, basically a simple string, we want to build an iOS app that retrieves and parses the JSON, and then displays the results in a table view. Pretty basic stuff, but at the heart of much more complex projects.</p>
+
+<!-- more -->
+
+
+<h2>Starting a new Xcode project.</h2>
+
+<p>Open Xcode and start a new project and choose the single Single View Application template.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api1.png"></p>
+
+<p>Then type your app name, and select <em>Use Storyboards</em> and <em>Use Automatic Reference Counting</em>.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api2.png"></p>
+
+<p>In the summary view of your project, under targets, make your app’s Deployment Target to be iOS 6.0 compatible or greater.</p>
+
+<h2>Installing dependencies using CocoaPods</h2>
+
+<p>To connect to our RESTful API we’re going to use <a href="http://restkit.org/">RestKit</a> an Objective-C framework for iOS that aims to simplify the interaction with RESTful web services. To manage our dependencies I suggest you use <a href="http://cocoapods.org/">CocoaPods</a>. I’m going to assume you already have CocoaPods installed on your system to continue with this tutorial (otherwise, just go to <a href="http://cocoapods.org/">here</a> and follow the instructions on how to install it). Now navigate or <em>cd</em> into you app directory and create a new file named <em>Podfile</em>. Open it and write the following:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>platform :ios, '5.0'
+</span><span class='line'>pod 'RestKit'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then from the command line run</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pod install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You shoul now have in you project dir a file with a <code>.xcworkspace</code> extension. From now on you should always work on this file when developing your app.</p>
+
+<h2>Customizing the storyboard</h2>
+
+<p>Open your workspace and navigate to your MainStoryboard.storyboard file. Delete the view controller in the storyboard and replace it with a Table View Controller (drag it on the storyboard from the Object Library). You can now delete (move to trash) the two ViewController.h / ViewController.m files from the Project Navigator in the left panel.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api3.png"></p>
+
+<p>Create (Command-N) a new Objective-C document and add it to your project.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api4.png"></p>
+
+<p>Name it MyTableViewController and make it inherit from the UITableViewController class.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api5.png"></p>
+
+<p>Back to the Storyboard you can now set the Class of your TableViewController to be a MyTableViewController in the Identity inspector.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api6.png"></p>
+
+<p>You should also set the identifier of the cell to <em>Cell</em> so that we can dequeue the cell of the TableView from our code later on.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api7.png"></p>
+
+<h2>Creating the model</h2>
+
+<p>Create a new Objective-C (Command-N) document and make it inherit from NSObject class. I’ll simply call it Product. This is how Product.h looks like:</p>
+
+<figure class='code'><figcaption><span>Product.h  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#import &lt;Foundation/Foundation.h&gt;</span>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">Product</span> : <span class="nc">NSObject</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="kt">int</span> <span class="n">product_id</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Product.m</em> doesn’t need to be modified because with the latest release of Apple’s developer tools properties don’t need to be synthesized anymore. So we’re just declaring two properties in the header file, a name and an id.</p>
+
+<h2>Setting up the RestKit stack</h2>
+
+<p>Now we’re going to init the RestKit stack in order to be able to connect and retrieve data from our API.
+In <em>MyTableViewController.h</em> we need to declare an Array where we will store the incoming data:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">retain</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">productsArray</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In MyTableViewController.m, import the header files for RestKit and Product:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#import &lt;RestKit/RestKit.h&gt;</span>
+</span><span class='line'><span class="cp">#import &quot;Product.h&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, inside the <code>viewDidLoad</code> declare this method call:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">self</span> <span class="n">initRestKitStack</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let’s implement <code>initRestKitStack</code> method:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">initRestKitStack</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Set debug logging level. Set to &#39;RKLogLevelTrace&#39; to see JSON payload</span>
+</span><span class='line'>    <span class="n">RKLogConfigureByName</span><span class="p">(</span><span class="s">&quot;RestKit/Network&quot;</span><span class="p">,</span> <span class="n">RKLogLevelTrace</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Set the base URL of our API</span>
+</span><span class='line'>    <span class="n">NSURL</span> <span class="o">*</span><span class="n">baseURL</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="s">@&quot;http://localhost:3000&quot;</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">RKObjectManager</span> <span class="o">*</span><span class="n">objectManager</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKObjectManager</span> <span class="nl">managerWithBaseURL:</span><span class="n">baseURL</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Enable Activity Indicator Spinner</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">AFNetworkActivityIndicatorManager</span> <span class="n">sharedManager</span><span class="p">].</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">YES</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Map the JSON payload to our Product model with a dictionary</span>
+</span><span class='line'>    <span class="n">RKObjectMapping</span> <span class="o">*</span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKObjectMapping</span> <span class="nl">mappingForClass:</span><span class="p">[</span><span class="n">Product</span> <span class="n">class</span><span class="p">]];</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">mapping</span> <span class="nl">addAttributeMappingsFromDictionary:</span><span class="err">@</span><span class="p">{</span>
+</span><span class='line'>        <span class="s">@&quot;name&quot;</span><span class="o">:</span> <span class="s">@&quot;name&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s">@&quot;id&quot;</span><span class="o">:</span> <span class="s">@&quot;product_id&quot;</span><span class="p">}];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">RKResponseDescriptor</span> <span class="o">*</span><span class="n">responseDescriptor</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKResponseDescriptor</span> <span class="nl">responseDescriptorWithMapping:</span><span class="n">mapping</span>
+</span><span class='line'>                        <span class="nl">pathPattern:</span><span class="s">@&quot;/products.json&quot;</span>
+</span><span class='line'>                        <span class="nl">keyPath:</span><span class="nb">nil</span>
+</span><span class='line'>                        <span class="nl">statusCodes:</span><span class="n">RKStatusCodeIndexSetForClass</span><span class="p">(</span><span class="n">RKStatusCodeClassSuccessful</span><span class="p">)];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">[</span><span class="n">objectManager</span> <span class="nl">addResponseDescriptor:</span><span class="n">responseDescriptor</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Load the object model via RestKit</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">objectManager</span> <span class="nl">getObjectsAtPath:</span><span class="s">@&quot;/products.json&quot;</span> <span class="nl">parameters:</span><span class="nb">nil</span> <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">RKObjectRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">RKMappingResult</span> <span class="o">*</span><span class="n">mappingResult</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Store the results of our query into our mutable array</span>
+</span><span class='line'>        <span class="n">_productsArray</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nl">arrayWithArray:</span><span class="p">[</span><span class="n">mappingResult</span> <span class="n">array</span><span class="p">]];</span>
+</span><span class='line'>        <span class="c1">// Update table data after the fetch has finished</span>
+</span><span class='line'>        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tableView</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">RKObjectRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">}];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The code is commented inline, so you shouldn’t have any problems understanding it.  RestKit is a pretty massive framework and provides a lot of functionality, so if you think it could be of any help to you, it’d be better to read the documentation.</p>
+
+<p>Now let’s implement the table view methods:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#pragma mark - Table view data source</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">numberOfSectionsInTableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Return the number of sections.</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Return the number of rows in the section.</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">[</span><span class="n">_productsArray</span> <span class="n">count</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">UITableViewCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">tableView</span> <span class="nl">dequeueReusableCellWithIdentifier:</span><span class="s">@&quot;Cell&quot;</span> <span class="nl">forIndexPath:</span><span class="n">indexPath</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">[(</span><span class="n">Product</span> <span class="o">*</span><span class="p">)[</span><span class="n">_productsArray</span> <span class="nl">objectAtIndex:</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">]</span> <span class="n">name</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Build and run</h2>
+
+<p>Now you should start your rails API server. Just cd from the command line into the appropriate directory and run <code>rails s</code>. If you build and run you iOS app you should now be seing the Table View populated with the data from your API, something like the following:</p>
+
+<p><img class="center" src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api8.png" width="200"></p>
+
+<h2>Conclusion</h2>
+
+<p>Of course these are only humble beginnings, there’d still be much to say about REST APIs. The simple app we built is lacking a lot of features (the most important perhaps is data persistence on the device), but we’re on the good track. In one of my future posts I’ll talk about integration of RestKit with CoreData.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[API for iOS app - part 1]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/"/>
+    <updated>2012-12-17T20:23:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app</id>
+    <content type="html"><![CDATA[<p>And here we go, with out firts technical post.</p>
+
+<p>One of the problems we, as mobile developers, have to face in almost any mid-to-high complexity project, is integrating our app with a backend. To solve this issue, the market offers today many <a href="http://en.wikipedia.org/wiki/Backend_as_a_service">BaaS</a> solutions. Just to name a few platforms that offer an iOS SDK that could be easily integrated (disclaimer: I’m not endorsing anyone or suggesting that the following are better than others):</p>
+
+<ul>
+<li><a href="https://parse.com/">Parse</a></li>
+<li><a href="https://www.stackmob.com/">Stackmob</a></li>
+<li><a href="http://www.appcelerator.com/">Appcelerator</a></li>
+</ul>
+
+
+<p>Of course there are as many advantages as drawbacks in opting for such a service. On the one side there’s the ease of use of APIs to retrieve and parse objects you need to store on those backends. On the other side you’re tying your app to a specific service and you’re exposing yourself to higher expenses (BaaS generally offer free plans for quite small applications, but if you’re going to scale then you’ll need to share your revenues not only with Apple).</p>
+
+<p>The approach I favored in my last projects is somewhat mixed. I now tend to outsource some of the more <em>difficult</em> stuff (like user management, which requires setting up the whole signup process) and insource the development of very simple APIs.</p>
+
+<p>I’ve been personally using Stackmob and Appcelerator backends for a couple of months. I admit they have some quite useful features, but let’s say you just need some kind of web platform (a stripped down CMS?) where you (or your clients) could input and update some basic informations. A typical example could be a product catalog: entries in the online database represent <em>goods</em>, where each good is associated to a <em>category</em>. And you just need to add, update or delete items so that your catalog is always up-to-date. This is the optimal situation where a custom, self-developed backend could make your day.</p>
+
+<p>I will now guide you step by step in the process of creating and stubbing a very simple <a href="http://en.wikipedia.org/wiki/Representational_state_transfer">RESTful</a> webservice made with <a href="http://rubyonrails.org/">Ruby on Rails</a> (RoR or Rails for short). In a later post I’ll talk about how to consume this webservice with an iOS application. Let’s get our hands dirty!</p>
+
+<!-- more -->
+
+
+<h2>Installing necessary software</h2>
+
+<p>First thing first: grab a copy of <a href="http://git-scm.com/">Git</a> and install it on your Mac (current stable release at the time of this writing 1.8.0.2).</p>
+
+<p>You’ll then need to install (or update) Ruby on your Mac. I suggest you use <a href="https://rvm.io/">rvm</a>: it’ll help you manage Ruby versions and gems (there’s even a GUI for Mac OS X - <a href="http://jewelrybox.unfiniti.com/">JewelryBox</a>). There’s plenty of documentation <a href="http://www.ruby-lang.org/en/downloads/">here</a>. Basically, from your Terminal, run the folloing command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ \curl -L https://get.rvm.io | bash -s stable --ruby</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above command will install both RVM and the latest version of Ruby. Then install the latest version of Ruby (1.9.3 as of this post):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rvm install 1.9.3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And use the newly installed Ruby:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rvm use 1.9.3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you now run</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby --version</span></code></pre></td></tr></table></div></figure>
+
+
+<p>you should see something like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby 1.9.3p194 (2012-04-20 revision 35410) [x86_64-darwin11.4.0]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Almost done&#8230; To install rails, just type:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install rails</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That’s it! Now we’re good to go.</p>
+
+<h2>Set up your first RoR project</h2>
+
+<p>Now from the terminal navigate (<em>cd</em>) into a directory where you’ll want to store the Rails project and type:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails new my-first-api</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Rails will generate a whole bunch of files. I’m not going to cover here what all those files do (you can find plenty of informations online - you could <a href="http://guides.rubyonrails.org/getting_started.html">start here</a> if you wanna learn more), but keep in mind that Rails was built with a <em>convention over configuration</em> philosophy and that therefore the command you just ran basically set up for you a fully functional application. In fact, if you cd (<code>cd my-first-api</code>) in the previously generated directory and run in the terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails server</span></code></pre></td></tr></table></div></figure>
+
+
+<p>you can start a local server to serve web pages on your machine. If you’ll now visit <a href="http://localhost:3000/">http://localhost:3000/</a> you should see the standard Rails welcome page. Congrats, you’ve just built your first RoR app!</p>
+
+<h2>Create a basic API</h2>
+
+<p>Now it’s time to setup a very basic API that you’ll use to populate a product table (later we’ll retrieve those products as JSON). If you’re still running you server (the one you started before with <code>rails server</code>, you can now shut it down by pressing <em>ctrl-c</em>.</p>
+
+<p>Let’s keep things simple: products, for the time being, will be represented only by their name (in a future post I’ll show you how to add associations, a category for example).</p>
+
+<p>So, type in the terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails generate scaffold Product name:string</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The command you just ran made Rails create all the files needed (Model, Views and Controller - <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC</a>) to respond to <a href="http://www.informit.com/articles/article.aspx?p=1671632&amp;seqNum=5">standard RESTful actions</a>. Now you’ll need to generate the corresponding database tables (by default Rails uses <a href="http://www.sqlite.org/">SQLite</a> in a development environment):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake db:migrate</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s start the server again (you can just type <code>rails s</code>) and visit <a href="http://localhost:3000/products">http://localhost:3000/products</a>. You should now be able to add, update and delete your products! The site is not very pretty, but it’s fully functional. You can already retrieve your objects in JSON format by visiting <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>. Cool, huh?</p>
+
+<p>In the next part I’ll show you how to easily implement a RESTful compliant iOS app to consume the webservice we just created.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hello world!]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world/"/>
+    <updated>2012-12-16T21:33:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world</id>
+    <content type="html"><![CDATA[<p>I always wanted to write my own blog, but for lack of time and patience, I never really did it (even though I tried more than once). Since I recently left my old job as an IT project manager at an healthcare company to start my own business and be a fulltime iOS developer, I’ve been thinking about doing more serious stuff. Long story short: here’s the blog I’d always wanted to write.</p>
+
+<p>But let’s start from the beginning. My name is Michelangelo Chasseur (hence the blog title’s <em>word game</em>) , and I currently work as head of software development for a <a href="http://www.touchwa.re">small Italian company</a> focused on software development for mobile platforms (and by mobile I mean <em>mainly</em> iOS). I’ve never been a fulltime developer until a few months ago. I’ve been working in the IT industry (for Intel and ASUS just to name a couple) for more than 5 years, but I started developing as a professional only in 2010 following an amazing experience at <a href="http://www.bignerdranch.com">BNR</a>. Since then I managed to get a couple of apps on the Apple App Store. Nothing really groundbreaking. And by the way, my academic background is not a technical one, in fact I happen to have a humanities degree in oriental languages&#8230;</p>
+
+<p>Touchware, the startup I co-founded, will focus on developing mobile apps – mainly in B2B – and digital publishing. We are currently working on bringing on the iPad and the iPhone some really nice children tales.</p>
+
+<p>So why – you ask – would I want to start a new blog? There’s a very simple reason: because I’d love sharing what I’ve learned and giving back to the community that has helped me up to this moment. Without the tips of some very nice and helpful fellow developers I wouldn’t be where I stand now. In the course of my past and present projects I’ve learned some tricks I think are worth sharing. They made my life easier. I hope they’ll be make yours as well.</p>
+
+<p>I’ll post ramblings and thoughts about everything even <em>loosely</em> related to iOS and Cocoa development. And I promise I won’t exclusively limit myself to Objective C and Cocoa frameworks. In my spare time I love tinkering with open hardware projects, so expect some posts about Arduino, RaspberryPi and the like. Plus, I’m a big fan of Ruby on Rails.</p>
+
+<p>I’ll try and make my best to share some insightful thoughts. At any moment you can leave on the blog your thoughts, feedback, advice, disapproval. Or you can just drop me a line at development[at]touchwa.re</p>
+
+<p>And now, let’s get started with some real stuff.</p>
+]]></content>
+  </entry>
+  
+</feed>

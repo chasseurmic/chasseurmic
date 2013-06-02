@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>API for iOS - Part 2 - Cocoa Hunter</title>
+  <meta name="author" content="Michelangelo Chasseur">
+
+  
+  <meta name="description" content="In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/">
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5972693-11']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
+  
+    <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/cocoahunter/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:chasseurmic.github.com/cocoahunter" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">API for iOS - Part 2</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-28T12:57:00+01:00" pubdate data-updated="true">Dec 28<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist new objects (we called them Products) in the local database via the very simple interface Rails created for you and query them as JSON from <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>.</p>
+
+<p>I inserted a few objects and this is the JSON I can retrieve from my API:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Movie&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;iPhone&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since each object has a property called name, basically a simple string, we want to build an iOS app that retrieves and parses the JSON, and then displays the results in a table view. Pretty basic stuff, but at the heart of much more complex projects.</p>
+
+<!-- more -->
+
+
+<h2>Starting a new Xcode project.</h2>
+
+<p>Open Xcode and start a new project and choose the single Single View Application template.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api1.png"></p>
+
+<p>Then type your app name, and select <em>Use Storyboards</em> and <em>Use Automatic Reference Counting</em>.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api2.png"></p>
+
+<p>In the summary view of your project, under targets, make your app’s Deployment Target to be iOS 6.0 compatible or greater.</p>
+
+<h2>Installing dependencies using CocoaPods</h2>
+
+<p>To connect to our RESTful API we’re going to use <a href="http://restkit.org/">RestKit</a> an Objective-C framework for iOS that aims to simplify the interaction with RESTful web services. To manage our dependencies I suggest you use <a href="http://cocoapods.org/">CocoaPods</a>. I’m going to assume you already have CocoaPods installed on your system to continue with this tutorial (otherwise, just go to <a href="http://cocoapods.org/">here</a> and follow the instructions on how to install it). Now navigate or <em>cd</em> into you app directory and create a new file named <em>Podfile</em>. Open it and write the following:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>platform :ios, '5.0'
+</span><span class='line'>pod 'RestKit'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then from the command line run</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pod install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You shoul now have in you project dir a file with a <code>.xcworkspace</code> extension. From now on you should always work on this file when developing your app.</p>
+
+<h2>Customizing the storyboard</h2>
+
+<p>Open your workspace and navigate to your MainStoryboard.storyboard file. Delete the view controller in the storyboard and replace it with a Table View Controller (drag it on the storyboard from the Object Library). You can now delete (move to trash) the two ViewController.h / ViewController.m files from the Project Navigator in the left panel.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api3.png"></p>
+
+<p>Create (Command-N) a new Objective-C document and add it to your project.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api4.png"></p>
+
+<p>Name it MyTableViewController and make it inherit from the UITableViewController class.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api5.png"></p>
+
+<p>Back to the Storyboard you can now set the Class of your TableViewController to be a MyTableViewController in the Identity inspector.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api6.png"></p>
+
+<p>You should also set the identifier of the cell to <em>Cell</em> so that we can dequeue the cell of the TableView from our code later on.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api7.png"></p>
+
+<h2>Creating the model</h2>
+
+<p>Create a new Objective-C (Command-N) document and make it inherit from NSObject class. I’ll simply call it Product. This is how Product.h looks like:</p>
+
+<figure class='code'><figcaption><span>Product.h  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#import &lt;Foundation/Foundation.h&gt;</span>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">Product</span> : <span class="nc">NSObject</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="kt">int</span> <span class="n">product_id</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Product.m</em> doesn’t need to be modified because with the latest release of Apple’s developer tools properties don’t need to be synthesized anymore. So we’re just declaring two properties in the header file, a name and an id.</p>
+
+<h2>Setting up the RestKit stack</h2>
+
+<p>Now we’re going to init the RestKit stack in order to be able to connect and retrieve data from our API.
+In <em>MyTableViewController.h</em> we need to declare an Array where we will store the incoming data:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">retain</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">productsArray</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In MyTableViewController.m, import the header files for RestKit and Product:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#import &lt;RestKit/RestKit.h&gt;</span>
+</span><span class='line'><span class="cp">#import &quot;Product.h&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, inside the <code>viewDidLoad</code> declare this method call:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">self</span> <span class="n">initRestKitStack</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let’s implement <code>initRestKitStack</code> method:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">initRestKitStack</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Set debug logging level. Set to &#39;RKLogLevelTrace&#39; to see JSON payload</span>
+</span><span class='line'>    <span class="n">RKLogConfigureByName</span><span class="p">(</span><span class="s">&quot;RestKit/Network&quot;</span><span class="p">,</span> <span class="n">RKLogLevelTrace</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Set the base URL of our API</span>
+</span><span class='line'>    <span class="n">NSURL</span> <span class="o">*</span><span class="n">baseURL</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="s">@&quot;http://localhost:3000&quot;</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">RKObjectManager</span> <span class="o">*</span><span class="n">objectManager</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKObjectManager</span> <span class="nl">managerWithBaseURL:</span><span class="n">baseURL</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Enable Activity Indicator Spinner</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">AFNetworkActivityIndicatorManager</span> <span class="n">sharedManager</span><span class="p">].</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">YES</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Map the JSON payload to our Product model with a dictionary</span>
+</span><span class='line'>    <span class="n">RKObjectMapping</span> <span class="o">*</span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKObjectMapping</span> <span class="nl">mappingForClass:</span><span class="p">[</span><span class="n">Product</span> <span class="n">class</span><span class="p">]];</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">mapping</span> <span class="nl">addAttributeMappingsFromDictionary:</span><span class="err">@</span><span class="p">{</span>
+</span><span class='line'>        <span class="s">@&quot;name&quot;</span><span class="o">:</span> <span class="s">@&quot;name&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s">@&quot;id&quot;</span><span class="o">:</span> <span class="s">@&quot;product_id&quot;</span><span class="p">}];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">RKResponseDescriptor</span> <span class="o">*</span><span class="n">responseDescriptor</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKResponseDescriptor</span> <span class="nl">responseDescriptorWithMapping:</span><span class="n">mapping</span>
+</span><span class='line'>                        <span class="nl">pathPattern:</span><span class="s">@&quot;/products.json&quot;</span>
+</span><span class='line'>                        <span class="nl">keyPath:</span><span class="nb">nil</span>
+</span><span class='line'>                        <span class="nl">statusCodes:</span><span class="n">RKStatusCodeIndexSetForClass</span><span class="p">(</span><span class="n">RKStatusCodeClassSuccessful</span><span class="p">)];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">[</span><span class="n">objectManager</span> <span class="nl">addResponseDescriptor:</span><span class="n">responseDescriptor</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Load the object model via RestKit</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">objectManager</span> <span class="nl">getObjectsAtPath:</span><span class="s">@&quot;/products.json&quot;</span> <span class="nl">parameters:</span><span class="nb">nil</span> <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">RKObjectRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">RKMappingResult</span> <span class="o">*</span><span class="n">mappingResult</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Store the results of our query into our mutable array</span>
+</span><span class='line'>        <span class="n">_productsArray</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nl">arrayWithArray:</span><span class="p">[</span><span class="n">mappingResult</span> <span class="n">array</span><span class="p">]];</span>
+</span><span class='line'>        <span class="c1">// Update table data after the fetch has finished</span>
+</span><span class='line'>        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tableView</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">RKObjectRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">}];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The code is commented inline, so you shouldn’t have any problems understanding it.  RestKit is a pretty massive framework and provides a lot of functionality, so if you think it could be of any help to you, it’d be better to read the documentation.</p>
+
+<p>Now let’s implement the table view methods:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#pragma mark - Table view data source</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">numberOfSectionsInTableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Return the number of sections.</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Return the number of rows in the section.</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">[</span><span class="n">_productsArray</span> <span class="n">count</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">UITableViewCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">tableView</span> <span class="nl">dequeueReusableCellWithIdentifier:</span><span class="s">@&quot;Cell&quot;</span> <span class="nl">forIndexPath:</span><span class="n">indexPath</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">[(</span><span class="n">Product</span> <span class="o">*</span><span class="p">)[</span><span class="n">_productsArray</span> <span class="nl">objectAtIndex:</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">]</span> <span class="n">name</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Build and run</h2>
+
+<p>Now you should start your rails API server. Just cd from the command line into the appropriate directory and run <code>rails s</code>. If you build and run you iOS app you should now be seing the Table View populated with the data from your API, something like the following:</p>
+
+<p><img class="center" src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api8.png" width="200"></p>
+
+<h2>Conclusion</h2>
+
+<p>Of course these are only humble beginnings, there’d still be much to say about REST APIs. The simple app we built is lacking a lot of features (the most important perhaps is data persistence on the device), but we’re on the good track. In one of my future posts I’ll talk about integration of RestKit with CoreData.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="https://plus.google.com/101601486820561758086?rel=author">Michelangelo Chasseur</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-28T12:57:00+01:00" pubdate data-updated="true">Dec 28<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/cocoahunter/blog/categories/api/'>API</a>, <a class='category' href='/cocoahunter/blog/categories/rest/'>REST</a>, <a class='category' href='/cocoahunter/blog/categories/rails/'>Rails</a>, <a class='category' href='/cocoahunter/blog/categories/backend/'>backend</a>, <a class='category' href='/cocoahunter/blog/categories/ios/'>iOS</a>, <a class='category' href='/cocoahunter/blog/categories/webservice/'>webservice</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/" data-via="chasseurmic" data-counturl="http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/cocoahunter/blog/2012/12/17/api-for-ios-app/" title="Previous Post: API for iOS app - part 1">&laquo; API for iOS app - part 1</a>
+      
+      
+        <a class="basic-alignment right" href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/" title="Next Post: Sinatra takes the stage, Padrino the cannoli.">Sinatra takes the stage, Padrino the cannoli. &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("chasseurmic", 5, false);
+    });
+  </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
+  
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/chasseurmic?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/chasseurmic">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Michelangelo Chasseur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'cocoahunter';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/';
+        var disqus_url = 'http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

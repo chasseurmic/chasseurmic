@@ -1,1 +1,472 @@
-My Octopress Page is coming soon &hellip;
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cocoa Hunter</title>
+  <meta name="author" content="Michelangelo Chasseur">
+
+  
+  <meta name="description" content="It&#8217;s been a while since I last updated the blog. Lots of contract work and deadlines have made it difficult to keep up with the writing. Anyway &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chasseurmic.github.com/cocoahunter/">
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5972693-11']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
+  
+    <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/cocoahunter/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:chasseurmic.github.com/cocoahunter" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and Basic Tutorial - Part 1 of 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-20T23:38:00+02:00" pubdate data-updated="true">May 20<span>th</span>, 2013</time>
+        
+         | <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>It&#8217;s been a while since I last updated the blog. Lots of contract work and deadlines have made it difficult to keep up with the writing. Anyway, I have jotted down a couple of ideas for some posts, so here&#8217;s the first one.</p>
+
+<p>Lately I&#8217;ve been busy digging deeper into OpenGL (actually OpenGL ES) and GLSL. This is a very very big topic (books about these subjects are often just shy of a thousand pages) and I don&#8217;t pretend to give a thorough explanation about them. What I&#8217;ll try to achieve is to give a very high overview of the technology stack followed by a hands on tutorial of a very basic drawing (a 3D cube). You should end up understanding what are the basic concepts of OpenGL, why and when you should use it, and how you should configure an iOS app to use OpenGL technology together with GLKit (there&#8217;s still a lack of good tutorials on integrating GLKit).</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API Authentication</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-02-13T15:37:00+01:00" pubdate data-updated="true">Feb 13<span>th</span>, 2013</time>
+        
+         | <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In a couple of our past posts we saw how to build a private API (<a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">Part 1</a> - <a href="http://cocoahunter.com/blog/2012/12/28/api-for-ios-part-2/">Part 2</a> ) that could be used as the backend for an iOS app. Let&#8217;s take it a step further.</p>
+
+<p>Today I will show you how to use that backend to actually let users log in and out (on the mobile device) from the system by providing a RESTful API for the authentication process. We&#8217;ll create a basic app from scratch step by step. Bear with me.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby Love With Your Apps.</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-16T14:26:00+01:00" pubdate data-updated="true">Jan 16<span>th</span>, 2013</time>
+        
+         | <a href="/cocoahunter/blog/2013/01/16/rubymotion/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In this post and the following one I will talk about RubyMotion.</p>
+
+<p><a href="http://www.RubyMotion.com/">RubyMotion</a> is a runtime for buiding native iOS apps using thethe Ruby language. Ruby, you say? Why Ruby? Well, Ruby is the only other language (the first obviously being Objective-C) officially supported by Apple for developing native apps.</p>
+
+<p>While <a href="hthettp://macruby.org/">MacRuby</a>, a Ruby interpreter on top of the Objective-C runtime providing a seamless bridge between Ruby and OS X <em>Cocoa</em> ecosystem, is an open-source project started in 2007 and backed by Apple itself, RubyMotion is a commercial project carried out by a team of engineers led by the very same individual, Laurent Sansonetti, that successfully launched MacRuby.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2013/01/16/rubymotion/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-10T15:44:00+01:00" pubdate data-updated="true">Jan 10<span>th</span>, 2013</time>
+        
+         | <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today I want to talk about style. Style is indeed what makes the difference between a good app and a great one. I&#8217;m not saying that this tutorial will automatically make your apps look great (you&#8217;d certainly need a designer for that), but I&#8217;ll share some useful tips on how to make it look less anonymous with little effort.</p>
+
+<p>Of course you could have an illustrator provide you with all the needed assets (images and stuff) and then include them in your projects with the <a href="http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAppearance_Protocol/Reference/Reference.html">UIAppearance protocol</a> Apple APIs provide since iOS 6. But wouldn&#8217;t it be great if you could apply to your application a &#8216;theme&#8217; and style it with some simple CSS-style code? Bear with me and I&#8217;ll show you the magic&#8230;</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra Takes the Stage, Padrino the Cannoli.</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-05T21:43:00+01:00" pubdate data-updated="true">Jan 5<span>th</span>, 2013</time>
+        
+         | <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
+
+<h2>Easy singing with Sinatra!</h2>
+
+<p>Sinatra is technically a Ruby DSL, a <em>domain specific language</em>. It’s not a framework, it’s kind of a <em>specific language layer</em> – on top of Ruby and Thin – that lets you implement in an easy and fast way a working web server.</p>
+
+<p>Let’s get straight to an example. The following code sets up a server and responds with a simple <em>&#8220;Hello world!&#8221;</em> to each request made to the base url. Create a new <em>.rb</em> file and copy the following snippet in it:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+</span><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="s2">&quot;Hello world!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then run it from the terminal with <code>ruby your_file_name.rb</code>. You should see something similar to:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>> ruby sinatra.rb 
+</span><span class='line'>== Sinatra/1.3.3 has taken the stage on 4567 for development with backup from Thin
+</span><span class='line'>>> Thin web server (v1.3.1 codename Triple Espresso)
+</span><span class='line'>>> Maximum connections set to 1024
+</span><span class='line'>>> Listening on 0.0.0.0:4567, CTRL+C to stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can visit <em>localhost:4567</em> and, voilà, you webpage is served!</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/cocoahunter/blog/page/2/">&larr; Older</a>
+    
+    <a href="/cocoahunter/blog/archives">Blog Archives</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>My name is Michelangelo Chasseur and I work as Head of Software Development for a small Italian company, <a href="http://www.touchwa.re">Touchware</a>, focused on mobile solutions and iOS development. Technology enthusiast, I love photography and tinkering with open hardware.</p><p>You can reach me at development[at]touchwa.re.</p>
+</section>
+<section>
+<a href="https://coderwall.com/chasseurmic"><img alt="Endorse chasseurmic on Coderwall" src="http://api.coderwall.com/chasseurmic/endorsecount.png" /></a>
+</section><section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("chasseurmic", 5, false);
+    });
+  </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
+  
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/chasseurmic?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/chasseurmic">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Michelangelo Chasseur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'cocoahunter';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

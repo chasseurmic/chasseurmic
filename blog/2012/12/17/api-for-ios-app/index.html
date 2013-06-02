@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>API for iOS app - part 1 - Cocoa Hunter</title>
+  <meta name="author" content="Michelangelo Chasseur">
+
+  
+  <meta name="description" content="And here we go, with out firts technical post. One of the problems we, as mobile developers, have to face in almost any mid-to-high complexity &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/">
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5972693-11']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
+  
+    <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/cocoahunter/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:chasseurmic.github.com/cocoahunter" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">API for iOS App - Part 1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-17T20:23:00+01:00" pubdate data-updated="true">Dec 17<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>And here we go, with out firts technical post.</p>
+
+<p>One of the problems we, as mobile developers, have to face in almost any mid-to-high complexity project, is integrating our app with a backend. To solve this issue, the market offers today many <a href="http://en.wikipedia.org/wiki/Backend_as_a_service">BaaS</a> solutions. Just to name a few platforms that offer an iOS SDK that could be easily integrated (disclaimer: I’m not endorsing anyone or suggesting that the following are better than others):</p>
+
+<ul>
+<li><a href="https://parse.com/">Parse</a></li>
+<li><a href="https://www.stackmob.com/">Stackmob</a></li>
+<li><a href="http://www.appcelerator.com/">Appcelerator</a></li>
+</ul>
+
+
+<p>Of course there are as many advantages as drawbacks in opting for such a service. On the one side there’s the ease of use of APIs to retrieve and parse objects you need to store on those backends. On the other side you’re tying your app to a specific service and you’re exposing yourself to higher expenses (BaaS generally offer free plans for quite small applications, but if you’re going to scale then you’ll need to share your revenues not only with Apple).</p>
+
+<p>The approach I favored in my last projects is somewhat mixed. I now tend to outsource some of the more <em>difficult</em> stuff (like user management, which requires setting up the whole signup process) and insource the development of very simple APIs.</p>
+
+<p>I’ve been personally using Stackmob and Appcelerator backends for a couple of months. I admit they have some quite useful features, but let’s say you just need some kind of web platform (a stripped down CMS?) where you (or your clients) could input and update some basic informations. A typical example could be a product catalog: entries in the online database represent <em>goods</em>, where each good is associated to a <em>category</em>. And you just need to add, update or delete items so that your catalog is always up-to-date. This is the optimal situation where a custom, self-developed backend could make your day.</p>
+
+<p>I will now guide you step by step in the process of creating and stubbing a very simple <a href="http://en.wikipedia.org/wiki/Representational_state_transfer">RESTful</a> webservice made with <a href="http://rubyonrails.org/">Ruby on Rails</a> (RoR or Rails for short). In a later post I’ll talk about how to consume this webservice with an iOS application. Let’s get our hands dirty!</p>
+
+<!-- more -->
+
+
+<h2>Installing necessary software</h2>
+
+<p>First thing first: grab a copy of <a href="http://git-scm.com/">Git</a> and install it on your Mac (current stable release at the time of this writing 1.8.0.2).</p>
+
+<p>You’ll then need to install (or update) Ruby on your Mac. I suggest you use <a href="https://rvm.io/">rvm</a>: it’ll help you manage Ruby versions and gems (there’s even a GUI for Mac OS X - <a href="http://jewelrybox.unfiniti.com/">JewelryBox</a>). There’s plenty of documentation <a href="http://www.ruby-lang.org/en/downloads/">here</a>. Basically, from your Terminal, run the folloing command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ \curl -L https://get.rvm.io | bash -s stable --ruby</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above command will install both RVM and the latest version of Ruby. Then install the latest version of Ruby (1.9.3 as of this post):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rvm install 1.9.3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And use the newly installed Ruby:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rvm use 1.9.3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you now run</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby --version</span></code></pre></td></tr></table></div></figure>
+
+
+<p>you should see something like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby 1.9.3p194 (2012-04-20 revision 35410) [x86_64-darwin11.4.0]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Almost done&#8230; To install rails, just type:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install rails</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That’s it! Now we’re good to go.</p>
+
+<h2>Set up your first RoR project</h2>
+
+<p>Now from the terminal navigate (<em>cd</em>) into a directory where you’ll want to store the Rails project and type:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails new my-first-api</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Rails will generate a whole bunch of files. I’m not going to cover here what all those files do (you can find plenty of informations online - you could <a href="http://guides.rubyonrails.org/getting_started.html">start here</a> if you wanna learn more), but keep in mind that Rails was built with a <em>convention over configuration</em> philosophy and that therefore the command you just ran basically set up for you a fully functional application. In fact, if you cd (<code>cd my-first-api</code>) in the previously generated directory and run in the terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails server</span></code></pre></td></tr></table></div></figure>
+
+
+<p>you can start a local server to serve web pages on your machine. If you’ll now visit <a href="http://localhost:3000/">http://localhost:3000/</a> you should see the standard Rails welcome page. Congrats, you’ve just built your first RoR app!</p>
+
+<h2>Create a basic API</h2>
+
+<p>Now it’s time to setup a very basic API that you’ll use to populate a product table (later we’ll retrieve those products as JSON). If you’re still running you server (the one you started before with <code>rails server</code>, you can now shut it down by pressing <em>ctrl-c</em>.</p>
+
+<p>Let’s keep things simple: products, for the time being, will be represented only by their name (in a future post I’ll show you how to add associations, a category for example).</p>
+
+<p>So, type in the terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails generate scaffold Product name:string</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The command you just ran made Rails create all the files needed (Model, Views and Controller - <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC</a>) to respond to <a href="http://www.informit.com/articles/article.aspx?p=1671632&amp;seqNum=5">standard RESTful actions</a>. Now you’ll need to generate the corresponding database tables (by default Rails uses <a href="http://www.sqlite.org/">SQLite</a> in a development environment):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake db:migrate</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s start the server again (you can just type <code>rails s</code>) and visit <a href="http://localhost:3000/products">http://localhost:3000/products</a>. You should now be able to add, update and delete your products! The site is not very pretty, but it’s fully functional. You can already retrieve your objects in JSON format by visiting <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>. Cool, huh?</p>
+
+<p>In the next part I’ll show you how to easily implement a RESTful compliant iOS app to consume the webservice we just created.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="https://plus.google.com/101601486820561758086?rel=author">Michelangelo Chasseur</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-17T20:23:00+01:00" pubdate data-updated="true">Dec 17<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/cocoahunter/blog/categories/api/'>API</a>, <a class='category' href='/cocoahunter/blog/categories/rest/'>REST</a>, <a class='category' href='/cocoahunter/blog/categories/rails/'>Rails</a>, <a class='category' href='/cocoahunter/blog/categories/backend/'>backend</a>, <a class='category' href='/cocoahunter/blog/categories/ios/'>iOS</a>, <a class='category' href='/cocoahunter/blog/categories/webservice/'>webservice</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/" data-via="chasseurmic" data-counturl="http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/cocoahunter/blog/2012/12/16/hello-world/" title="Previous Post: Hello world!">&laquo; Hello world!</a>
+      
+      
+        <a class="basic-alignment right" href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/" title="Next Post: API for iOS - Part 2">API for iOS - Part 2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("chasseurmic", 5, false);
+    });
+  </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
+  
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/chasseurmic?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/chasseurmic">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Michelangelo Chasseur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'cocoahunter';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/';
+        var disqus_url = 'http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: animation | Cocoa Hunter]]></title>
+  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/animation/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/cocoahunter/"/>
+  <updated>2013-06-02T23:47:57+02:00</updated>
+  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <author>
+    <name><![CDATA[Michelangelo Chasseur]]></name>
+    <email><![CDATA[chasseurmi@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[OpenGL and GLKit. Intro and basic tutorial - part 1 of 2]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/"/>
+    <updated>2013-05-20T23:38:00+02:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial</id>
+    <content type="html"><![CDATA[<p>It's been a while since I last updated the blog. Lots of contract work and deadlines have made it difficult to keep up with the writing. Anyway, I have jotted down a couple of ideas for some posts, so here's the first one.</p>
+
+<p>Lately I've been busy digging deeper into OpenGL (actually OpenGL ES) and GLSL. This is a very very big topic (books about these subjects are often just shy of a thousand pages) and I don't pretend to give a thorough explanation about them. What I'll try to achieve is to give a very high overview of the technology stack followed by a hands on tutorial of a very basic drawing (a 3D cube). You should end up understanding what are the basic concepts of OpenGL, why and when you should use it, and how you should configure an iOS app to use OpenGL technology together with GLKit (there's still a lack of good tutorials on integrating GLKit).</p>
+
+<!-- more -->
+
+
+<h2>What is OpenGL?</h2>
+
+<p><a href="http://www.opengl.org/">OpenGL</a>, which stands for Open Graphics Library, is a cross-language, multi-platform API for rendering 2D and 3D computer graphics. Here I'll be talking specifically about the ES (embedded system) version which is the one in use on mobile devices (iOS and Android). Just to give some context, the main competitor of OpenGL is <a href="http://en.wikipedia.org/wiki/Microsoft_Direct3D">D3D</a> (or Direct3D), a Windows technology part of the well-known DirectX API. If you want to learn more about the history of the two competing technolgies and how they evolved, I strongly encourage reading <a href="http://programmers.stackexchange.com/questions/60544/why-do-game-developers-prefer-windows">this excellent StackExchange thread</a>.</p>
+
+<p>Simply put, OpenGL is a way of programming the GPU and it is at the heart of almost everything we see on a computer / smartphone / tablet screen nowadays. Even UIKit sits on top of OpenGL to do its drawing. It's just hidden and abstracted into more developer friendly methods, but that's the one technology behind graphics rendering.</p>
+
+<p>In Apple's technology stack there are different frameworks to do different things. You should use <a href="http://developer.apple.com/library/ios/#documentation/CoreGraphics/Reference/CoreGraphics_Framework/_index.html">CoreGraphics</a> and <a href="http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Conceptual/CoreImaging/ci_intro/ci_intro.html">CoreImage</a> to deal with images and filters, <a href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html">CoreAnimation</a> to animate views, <a href="http://developer.apple.com/library/mac/#documentation/3DDrawing/Conceptual/SceneKit_PG/Introduction/Introduction.html">SceneKit</a> (at the moment on OS X only, but probably soon to be seen on iOS too) to manage 3D objects. So why and when should you use OpenGL. For short: when you want to be able to access the powerful features of the graphics card (GPU) of your device. And by the way, at the moment, OpenGL is the only way of displaying a 3D object in a native iOS app.</p>
+
+<p>As a side note, if someone told you that OpenGL is the best suited and most powerful tool to make videogames, that's only part of the truth. Certainly OpenGL powers all modern games (except for those running on MSFT D3D), but hardly any of them (apart probably from big studios) are designed by writing code from scratch. And if you're interested in such topics, then you might want to check out other frameworks (whether 2D or 3D) that have a higher level of abstraction. I'll try and write a future post about some viable options for iOS developers like <a href="http://www.cocos2d-iphone.org/">Cocos2D</a>, <a href="http://www.coronalabs.com/products/corona-sdk/">Corona SDK</a> and <a href="http://unity3d.com/">Unity3D</a>.</p>
+
+<h2>OpenGL ES</h2>
+
+<p>So, let's focus on OpenGL ES. Most of the things we're going to cover also apply to OpenGL, some of them are specific to the embedded version. From now on when I'll say OpenGL, I'll mean the ES version. Let's see briefly a few key points that are at the heart of OpenGL:</p>
+
+<ul>
+<li><strong>state machine</strong>: OpenGL is a state machine which means that when you set an option or you bind a buffer, that option or that buffer will be in use until you 'disable' them. As an example <code>glEnable(GL_DEPTH_TEST);</code> will enable the depth testing feature of OpenGL (which helps deciding which elements of a rendered scene are visible, and which are hidden) and as such it will remain until explicitly disabled;</li>
+<li><strong>coordinate system</strong>: OpenGL coordinate system is different from the one used by UIKit in that it has its origin centered on the screen. With an overly simplistic explantion, I'd say that by mapping a 3D space, its <code>x = 0, y = 0, z = 0</code> coordinates will be at the center of your device's screen. Furthermore, without applying matrix transformations to the view, plane coordinates will go from (-1, -1) / lower left corner of the screen, to (1, 1) / upper right corner of the screen. More detailed information <a href="http://www.falloutsoftware.com/tutorials/gl/gl0.htm">can be found here</a>;</li>
+<li><strong>vertices</strong>: vertices represent the data associated with the 3D objects you want OpenGL to render onscreen. Vertex data is what you need to load into the GPU so that the vertex shader can process it. Vertices are usually defined by their position (in a 3D space), color, normals and eventually associated texture;</li>
+<li><strong>working with primitives</strong>: finally you have to tell OpenGL how to interpret the stream of data you passed into the sahders by definig how the primitives, i.e. points, lines and triangles, shoul dbe drawn (more on this in the upcoming tutorial).</li>
+</ul>
+
+
+<h2>OpenGL ES v. 1 vs v. 2</h2>
+
+<p>From iOS 3.0 onwards Apple supports OpenGL ES 2 and has strongly encouraged developers to shift towards the latest version of the graphics library (often encountering some resistance). The main difference between v.1 and v.2 is what it's called the <em>programmable pipeline</em>. Basically OpenGL ES 2 offers and <em>requires</em> you to define your own shaders (specific programs that are executed on the GPU instead of the CPU).</p>
+
+<p>While in v.1 you could do away with providing to the GPU anything else than raw data, in v.2 you need to define your own shaders. Meaning: more power, more work for the developer. OpenGL ES v.2 in fact requires you to write:</p>
+
+<ul>
+<li>a <strong>vertex shader</strong> which applies computations (transformations) once for each vertex passed thru the pipeline;</li>
+<li>a <strong>fragment shader</strong> which applies color or texture data to the fragment, i.e. after the primitive has been rasterized.</li>
+</ul>
+
+
+<p>Given that this was one of the main reasons developers were not moving towards v.2, Apple introduced - with iOS 5 - a new framework, GLKit.</p>
+
+<h2>GLKit</h2>
+
+<p>This is going to be the last bit of theory before taking care of some real stuff. Suffice to say that <a href="https://developer.apple.com/library/ios/#documentation/GLkit/Reference/GLKit_Collection/_index.html">GLKit</a> provides some facilities to take care of some of the harder bits and repetitive OpenGL stuff. Apart from some useful math utilities to deal with matrices, quaternions, affine and homogeneous transformations and such other scaring entities, GLKit introduced <code>GLKBaseEffect</code>, a class that takes away all the complexity of shaders. The tutorial we'll be focusing on in part 2 of this post (to come briefly) will show how to set up a <code>GLKViewController</code> with an embedded <code>GLKView</code> by making use of the base effect.</p>
+]]></content>
+  </entry>
+  
+</feed>

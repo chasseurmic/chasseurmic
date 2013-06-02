@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby | Cocoa Hunter]]></title>
+  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/cocoahunter/"/>
+  <updated>2013-06-02T23:47:57+02:00</updated>
+  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <author>
+    <name><![CDATA[Michelangelo Chasseur]]></name>
+    <email><![CDATA[chasseurmi@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RubyMotion. Share Ruby love with your apps.]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/"/>
+    <updated>2013-01-16T14:26:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion</id>
+    <content type="html"><![CDATA[<p>In this post and the following one I will talk about RubyMotion.</p>
+
+<p><a href="http://www.RubyMotion.com/">RubyMotion</a> is a runtime for buiding native iOS apps using thethe Ruby language. Ruby, you say? Why Ruby? Well, Ruby is the only other language (the first obviously being Objective-C) officially supported by Apple for developing native apps.</p>
+
+<p>While <a href="hthettp://macruby.org/">MacRuby</a>, a Ruby interpreter on top of the Objective-C runtime providing a seamless bridge between Ruby and OS X <em>Cocoa</em> ecosystem, is an open-source project started in 2007 and backed by Apple itself, RubyMotion is a commercial project carried out by a team of engineers led by the very same individual, Laurent Sansonetti, that successfully launched MacRuby.</p>
+
+<!-- more -->
+
+
+<p>In the last few years some prominent Apple managers have gone as far as <a href="http://arstechnica.com/apple/2010/06/copland-2010-revisited/">predicting that Ruby could be Apple's next language</a>. Others are more skeptical about the subject, mainly because Objective-C is something Apple can directly control, and Ruby isn't. I tend to agree with the latter opinion, but it's still darn interesting to have an alternative. And it's even more interesting when we're talking about Ruby, a fast, fun, dynamic and prodcutive language. That's why RubyMotion, announced only in May 2012, is gaining momentum.</p>
+
+<p>RubyMotion can leverage all the features provided by the Cocoa Touch APIs and at the same time harness the power and expressiveness of Ruby. To be more technical, by sharing the same object model infrastructure, Objective-C and RubyMotion APIs can be interchangeable at no additional performance expense. For example – in more concrete terms arrays inherits both from <code>NSArray</code> (Objective-C) and <code>Enumerable</code> (Ruby), allowing you to do something like:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="vi">@tableData</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">to_a</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;def tableView(tableView, numberOfRowsInSection: section)&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="vi">@tableData</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;def tableView(tableView, cellForRowAtIndexPath: indexPath)&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="c1">#setup the cell...&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">cell</span><span class="o">.</span><span class="n">textLabel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="vi">@tableData</span><span class="o">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="o">].</span><span class="n">to_s</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  cell</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>...which to me seems pretty cool!</p>
+
+<p>Another cool feature is that you have at your disposal kind of an interactive <a href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a>: basically you simply build and run your app by running the <code>rake</code> command from the terminal, and while the Simulator is open, the Terminal should be displaying an <em>irb</em>-esque prompt where you can play in real time with you running app (you can for example change at runtime the attributes of your views).</p>
+
+<p>For a live demo and more infos on RubyMotion you should definetely check out this <a href="http://pragmaticstudio.com/screencasts/rubymotion">PragProg's free screencast</a>.</p>
+
+<p>I've been playing with RubyMotion for the last couple of months and I like it. I really do. Anyway, I still feel more comfortable with Objective-C, although there are definetely some advantages that the Ruby language can count on (mainly when working with data - arrays, hashes and the like).</p>
+
+<p>To say it all, in my opinion there are still a couple of drawbacks: code autocompletion and error detection. Both of these <em>issues</em> can be related to the IDE: Xcode. Let's run thru them one at a time:</p>
+
+<ul>
+<li><strong>error detection</strong>: the new Apple LLVM engine is constantly working in the background to understand the code and to alert the developer of coding mistakes. This is a feature that a dynamic language will probably never achieve. At the end of the day, Rubymotion is just plain Ruby code (with some little tweaks added to deal with <em>keywords</em> contained in Objective-C method syntax). You can use any text editor (TextMate, Sublime Text, <em>put here your favorite text editor</em>) to get the job done. Text editors won't give you error-detection.</li>
+<li><strong>autocompletion</strong>: no auto-completion in your text editor, means not having the means to tap easuly into Cocoa touch APIs. Glad for you if you can remember a method like <code>- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath</code>, but for mere mortals I think this is a no brainer feature to count on. Of course you can have snippets in TextMate or Sublime, but they can't stand a chance in comparison to what Xcode can do.</li>
+</ul>
+
+
+<p>[EDIT] <a href="http://blog.jetbrains.com/ruby/2012/12/enjoy-rubymine-enoki-eap-while-were-all-still-alive/">JetBrains has recently announced</a> that the next version of RubyMine will support RubyMotion (with autocompletion features). You can already check out their <a href="http://confluence.jetbrains.com/display/RUBYDEV/RubyMine+EAP">early access preview by downloading it here</a>. This seems promising and could speed up the development process of a RubyMotion app by an order of magnitude!</p>
+
+<p>In the next episode I'll talk about what you can actually do with RubyMotion by providing a couple of concrete example.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sinatra takes the stage, Padrino the cannoli.]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/"/>
+    <updated>2013-01-05T21:43:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage</id>
+    <content type="html"><![CDATA[<p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
+
+<h2>Easy singing with Sinatra!</h2>
+
+<p>Sinatra is technically a Ruby DSL, a <em>domain specific language</em>. It’s not a framework, it’s kind of a <em>specific language layer</em> – on top of Ruby and Thin – that lets you implement in an easy and fast way a working web server.</p>
+
+<p>Let’s get straight to an example. The following code sets up a server and responds with a simple <em>"Hello world!"</em> to each request made to the base url. Create a new <em>.rb</em> file and copy the following snippet in it:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+</span><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="s2">&quot;Hello world!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Then run it from the terminal with <code>ruby your_file_name.rb</code>. You should see something similar to:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;blockquote>&lt;p>ruby sinatra.rb
+</span><span class='line'>== Sinatra/1.3.3 has taken the stage on 4567 for development with backup from Thin&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;blockquote>&lt;p>Thin web server (v1.3.1 codename Triple Espresso)
+</span><span class='line'>Maximum connections set to 1024
+</span><span class='line'>Listening on 0.0.0.0:4567, CTRL+C to stop</span></code></pre></td></tr></table></div></figure></notextile></div></p></blockquote></blockquote>
+
+<p>Now you can visit <em>localhost:4567</em> and, voilà, you webpage is served!</p>
+
+<!-- more -->
+
+
+<p>The good thing about Sinatra is that it's lightweight, fast and very easy to setup. Plus the code it's neat and readable: all the CRUD methods are explicit in that the routes are defined with HTTP verbs (get, post, put, delete). The bad thing – which for someone might be a good thing – is that there's no <em>magic</em> in it: I mean no helpers, no generators, not all the little nice conventions Rails has accustomed us to and is renowned for. If you want to setup even a simple API in Sinatra you have to code almost everything by hand. That's where Padrino comes in…</p>
+
+<h2>Padrino</h2>
+
+<p>Padrino is a web framework for Sinatra. Padrino is Sinatra at the core; according to Padrino's project <a href="http://www.padrinorb.com/">home page</a>, <em>Padrino was created to make it fun and easy to code more advanced web applications while still adhering to the spirit that makes Sinatra great!</em>.</p>
+
+<p>Padrino combines the simplicity of Sinatra with some of the more useful functions of Rails (generators, basic scaffolding, helpers, form builders…). And it's even got a nice admin panel right out of the box (Django-style if you know what I mean) which is a very useful feature if you want to run an API where only a predefined number of admins can insert and modify data.</p>
+
+<h3>API with Padrino</h3>
+
+<p>We'll now build the same API we built in a <a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">previous post</a> so you'll see how Padrino fares against Rails.</p>
+
+<p>Run the following code in you terminal:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install padrino
+</span><span class='line'>padrino g project padrino-api -e haml -d activerecord -b
+</span><span class='line'>cd padrino-api
+</span><span class='line'>padrino g admin
+</span><span class='line'>padrino g model product name:string -a app
+</span><span class='line'>padrino rake ar:migrate seed
+</span><span class='line'>padrino g admin_page product
+</span><span class='line'>padrino start</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>That's it! You're ready to go. What you've just done is:</p>
+
+<ul>
+<li>creating an app;</li>
+<li>scaffolding the admin panel;</li>
+<li>creating a basic product model (with simply a name of <em>string</em> type);</li>
+<li>creating the tables in the database and seeding it with some informations (email, password) of the admin user;</li>
+<li>generating the necessary views inside the admin panel to manage your newly created model;</li>
+<li>starting the app.</li>
+</ul>
+
+
+<p>If you now visit <em>localhost:3000/admin</em> you should be able to login and see a section dedicated to your Product model. You can now start adding some objects to your DB. One last thing before being able to consume the API: inside your project directory, in you <em>app.rb</em> file add the following snippet.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="vi">@products</span> <span class="o">=</span> <span class="no">Product</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>  <span class="vi">@products</span><span class="o">.</span><span class="n">to_json</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This code is basically telling your app that whenever a request hits the base url it has to retrieve all the <em>Product</em> objects, serialize them and respond with some JSON. That's it. If you now visit <em>localhost:3000/</em> you should get something like this:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span><span class="err">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;pre&gt;&lt;code&gt;</span><span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:23:42+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:07+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'><span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Movie&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'><span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;iPhone&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="err">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;p&gt;</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Cool, huh? In a couple of minutes we have defined and set up an API. Of course it's still very basic stuff, but with some polishing it shouldn't take you much effort to build a more solid API for your mobile app.</p>
+]]></content>
+  </entry>
+  
+</feed>

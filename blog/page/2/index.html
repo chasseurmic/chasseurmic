@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cocoa Hunter</title>
+  <meta name="author" content="Michelangelo Chasseur">
+
+  
+  <meta name="description" content="In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chasseurmic.github.com/cocoahunter/blog/page/2/">
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5972693-11']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
+  
+    <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/cocoahunter/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:chasseurmic.github.com/cocoahunter" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/">API for iOS - Part 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-28T12:57:00+01:00" pubdate data-updated="true">Dec 28<span>th</span>, 2012</time>
+        
+         | <a href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist new objects (we called them Products) in the local database via the very simple interface Rails created for you and query them as JSON from <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>.</p>
+
+<p>I inserted a few objects and this is the JSON I can retrieve from my API:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Movie&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;iPhone&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since each object has a property called name, basically a simple string, we want to build an iOS app that retrieves and parses the JSON, and then displays the results in a table view. Pretty basic stuff, but at the heart of much more complex projects.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2012/12/17/api-for-ios-app/">API for iOS App - Part 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-17T20:23:00+01:00" pubdate data-updated="true">Dec 17<span>th</span>, 2012</time>
+        
+         | <a href="/cocoahunter/blog/2012/12/17/api-for-ios-app/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>And here we go, with out firts technical post.</p>
+
+<p>One of the problems we, as mobile developers, have to face in almost any mid-to-high complexity project, is integrating our app with a backend. To solve this issue, the market offers today many <a href="http://en.wikipedia.org/wiki/Backend_as_a_service">BaaS</a> solutions. Just to name a few platforms that offer an iOS SDK that could be easily integrated (disclaimer: I’m not endorsing anyone or suggesting that the following are better than others):</p>
+
+<ul>
+<li><a href="https://parse.com/">Parse</a></li>
+<li><a href="https://www.stackmob.com/">Stackmob</a></li>
+<li><a href="http://www.appcelerator.com/">Appcelerator</a></li>
+</ul>
+
+
+<p>Of course there are as many advantages as drawbacks in opting for such a service. On the one side there’s the ease of use of APIs to retrieve and parse objects you need to store on those backends. On the other side you’re tying your app to a specific service and you’re exposing yourself to higher expenses (BaaS generally offer free plans for quite small applications, but if you’re going to scale then you’ll need to share your revenues not only with Apple).</p>
+
+<p>The approach I favored in my last projects is somewhat mixed. I now tend to outsource some of the more <em>difficult</em> stuff (like user management, which requires setting up the whole signup process) and insource the development of very simple APIs.</p>
+
+<p>I’ve been personally using Stackmob and Appcelerator backends for a couple of months. I admit they have some quite useful features, but let’s say you just need some kind of web platform (a stripped down CMS?) where you (or your clients) could input and update some basic informations. A typical example could be a product catalog: entries in the online database represent <em>goods</em>, where each good is associated to a <em>category</em>. And you just need to add, update or delete items so that your catalog is always up-to-date. This is the optimal situation where a custom, self-developed backend could make your day.</p>
+
+<p>I will now guide you step by step in the process of creating and stubbing a very simple <a href="http://en.wikipedia.org/wiki/Representational_state_transfer">RESTful</a> webservice made with <a href="http://rubyonrails.org/">Ruby on Rails</a> (RoR or Rails for short). In a later post I’ll talk about how to consume this webservice with an iOS application. Let’s get our hands dirty!</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2012/12/17/api-for-ios-app/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2012/12/16/hello-world/">Hello World!</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-16T21:33:00+01:00" pubdate data-updated="true">Dec 16<span>th</span>, 2012</time>
+        
+         | <a href="/cocoahunter/blog/2012/12/16/hello-world/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I always wanted to write my own blog, but for lack of time and patience, I never really did it (even though I tried more than once). Since I recently left my old job as an IT project manager at an healthcare company to start my own business and be a fulltime iOS developer, I’ve been thinking about doing more serious stuff. Long story short: here’s the blog I’d always wanted to write.</p>
+
+<p>But let’s start from the beginning. My name is Michelangelo Chasseur (hence the blog title’s <em>word game</em>) , and I currently work as head of software development for a <a href="http://www.touchwa.re">small Italian company</a> focused on software development for mobile platforms (and by mobile I mean <em>mainly</em> iOS). I’ve never been a fulltime developer until a few months ago. I’ve been working in the IT industry (for Intel and ASUS just to name a couple) for more than 5 years, but I started developing as a professional only in 2010 following an amazing experience at <a href="http://www.bignerdranch.com">BNR</a>. Since then I managed to get a couple of apps on the Apple App Store. Nothing really groundbreaking. And by the way, my academic background is not a technical one, in fact I happen to have a humanities degree in oriental languages&#8230;</p>
+
+<p>Touchware, the startup I co-founded, will focus on developing mobile apps – mainly in B2B – and digital publishing. We are currently working on bringing on the iPad and the iPhone some really nice children tales.</p>
+
+<p>So why – you ask – would I want to start a new blog? There’s a very simple reason: because I’d love sharing what I’ve learned and giving back to the community that has helped me up to this moment. Without the tips of some very nice and helpful fellow developers I wouldn’t be where I stand now. In the course of my past and present projects I’ve learned some tricks I think are worth sharing. They made my life easier. I hope they’ll be make yours as well.</p>
+
+<p>I’ll post ramblings and thoughts about everything even <em>loosely</em> related to iOS and Cocoa development. And I promise I won’t exclusively limit myself to Objective C and Cocoa frameworks. In my spare time I love tinkering with open hardware projects, so expect some posts about Arduino, RaspberryPi and the like. Plus, I’m a big fan of Ruby on Rails.</p>
+
+<p>I’ll try and make my best to share some insightful thoughts. At any moment you can leave on the blog your thoughts, feedback, advice, disapproval. Or you can just drop me a line at development[at]touchwa.re</p>
+
+<p>And now, let’s get started with some real stuff.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/cocoahunter/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/cocoahunter/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>My name is Michelangelo Chasseur and I work as Head of Software Development for a small Italian company, <a href="http://www.touchwa.re">Touchware</a>, focused on mobile solutions and iOS development. Technology enthusiast, I love photography and tinkering with open hardware.</p><p>You can reach me at development[at]touchwa.re.</p>
+</section>
+<section>
+<a href="https://coderwall.com/chasseurmic"><img alt="Endorse chasseurmic on Coderwall" src="http://api.coderwall.com/chasseurmic/endorsecount.png" /></a>
+</section><section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("chasseurmic", 5, false);
+    });
+  </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
+  
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/chasseurmic?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/chasseurmic">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Michelangelo Chasseur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'cocoahunter';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

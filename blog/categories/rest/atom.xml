@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: rest | Cocoa Hunter]]></title>
+  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/rest/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/cocoahunter/"/>
+  <updated>2013-06-02T23:47:57+02:00</updated>
+  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <author>
+    <name><![CDATA[Michelangelo Chasseur]]></name>
+    <email><![CDATA[chasseurmi@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RESTful API authentication]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication/"/>
+    <updated>2013-02-13T15:37:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication</id>
+    <content type="html"><![CDATA[<p>In a couple of our past posts we saw how to build a private API (<a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">Part 1</a> - <a href="http://cocoahunter.com/blog/2012/12/28/api-for-ios-part-2/">Part 2</a> ) that could be used as the backend for an iOS app. Let's take it a step further.</p>
+
+<p>Today I will show you how to use that backend to actually let users log in and out (on the mobile device) from the system by providing a RESTful API for the authentication process. We'll create a basic app from scratch step by step. Bear with me.</p>
+
+<!-- more -->
+
+
+<p>First of all, let's fire the terminal and create a new rails app: <code>rails new AuthTest</code>. Then <code>cd</code> into the newly created directory. Open your Gemfile and add the following line to the end of the file as follows:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><code>devise</code> is an awesome gem to deal with authentication. You can read more about it on the official <a href="https://github.com/plataformatec/devise">Github page</a> or watch the very good screencasts from Ryan Bates on <a href="http://railscasts.com/episodes?utf8=%E2%9C%93&amp;search=devise">Railscasts</a>.</p>
+
+<p>You can now run the following command in the terminal:</p>
+
+<p><code>
+bundle install
+rails g devise:install
+rails g devise User
+rake db:migrate
+</code></p>
+
+<p>We have now everything we need to manage users. The <code>rails g devise User</code> has scaffolded a devise model called User. Let's open it (/app/models/user.rb) and modify it by adding <code>:token_authenticatable</code> in the <code>devise</code> section of the file. This will let the user authenticate thru a token that our backend will generate and that mobile client will use when querying the web application.</p>
+
+<p>Now let's make some changed in the config (/config/initializers/devise.rb):</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">skip_session_storage</span> <span class="o">=</span> <span class="o">[</span><span class="ss">:http_auth</span><span class="p">,</span> <span class="ss">:token_auth</span><span class="o">]</span>
+</span><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">token_authentication_key</span> <span class="o">=</span> <span class="ss">:auth_token</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>To understand what we just did, you can read more in the config file just above the methods you've just changed. Devise is very well documented.</p>
+
+<p>We also need to generate a migration to add an <code>authentication_token</code> field to the Users table where the token will be stored as a string. Run <code>rails g migration AddTokenToUsers authentication_token</code>. Your newly generated migration file should look like this:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">AddTokenToUsers</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;add_column :users, :authentication_token, :string</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Now let's scaffold a new resource, the one only authenticated users will be able to access. Run <code>rails g scaffold Product name:string description:text</code>.</p>
+
+<p>Let's open <code>products_controller.rb</code> and modify it as follows:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ProductsController</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:authenticate_user!</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h1&gt;...&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Migrate (<code>rake db:migrate</code>) your database again.</p>
+
+<p>Let's also delete <code>public/index.html</code> and modify our <code>routes.rb</code> file so that our root page is going to be the products controller index action:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">AuthTest</span><span class="o">::</span><span class="no">Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">resources</span> <span class="ss">:products</span>
+</span><span class='line'>  <span class="n">root</span> <span class="ss">:to</span> <span class="o">=&gt;</span> <span class="s1">&#39;products#index&#39;</span>
+</span><span class='line'>  <span class="n">devise_for</span> <span class="ss">:users</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>If you now run your server (<code>rails s</code>) you'll see that your app is going to ask you to login.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/devise-auth-api/api-auth1.png"></p>
+
+<p>Obviously we currently haven't generated any users, so let's go ahead and create one. Click on sign up and complete the process. You may also add a couple of Products just to make sure everything works alright.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/devise-auth-api/api-auth2.png"></p>
+
+<p>If you've managed to make everything run up to this point, we can now move to the juicy part. To authenticate the user we'll be subclassing Devise::SessionsController with our own controller that basically runs a check on a given username and password and, if valid, returns a token. In a way, users are signed in to the backend as long as they have a valid authentication token. It's up to you the decision relative to the expiration policies of the token.</p>
+
+<p>Create a new file in the <code>/app/controllers</code> directory and name it <code>sessions_controller.rb</code>. Paste in it the following code:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">Devise</span><span class="o">::</span><span class="no">SessionsController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:authenticate_user!</span><span class="p">,</span> <span class="ss">:except</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:create</span><span class="p">,</span> <span class="ss">:destroy</span><span class="o">]</span>
+</span><span class='line'>  <span class="n">respond_to</span> <span class="ss">:json</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  def create&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">resource</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_for_database_authentication</span><span class="p">(</span><span class="ss">:email</span> <span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="k">return</span> <span class="n">invalid_login_attempt</span> <span class="k">unless</span> <span class="n">resource</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">valid_password?</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">sign_in</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">resource</span><span class="o">.</span><span class="n">ensure_authentication_token!</span>
+</span><span class='line'>  <span class="n">render</span> <span class="ss">:json</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">{</span><span class="ss">:success</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="kp">true</span><span class="p">,</span> <span class="ss">:auth_token</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">resource</span><span class="o">.</span><span class="n">authentication_token</span><span class="p">,</span> <span class="ss">:email</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">resource</span><span class="o">.</span><span class="n">email</span><span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="n">invalid_login_attempt</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  def destroy&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">resource</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_for_database_authentication</span><span class="p">(</span><span class="ss">:email</span> <span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="n">resource</span><span class="o">.</span><span class="n">authentication_token</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'><span class="n">resource</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'><span class="n">render</span> <span class="ss">:json</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">{</span><span class="ss">:success</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="kp">true</span><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  protected&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">def</span> <span class="nf">invalid_login_attempt</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;render :json=&amp;gt; {:success=&amp;gt;false, :message=&amp;gt;&quot;Error with your login or password&quot;}, :status=&amp;gt;401</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Now you have to tell your <code>routes.rb</code> file that Devise should be using our custom controller when dealing with user sessions instead of the standard one. Modify you Routes file accordingly:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h1&gt;...&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">devise_for</span><span class="p">(</span><span class="ss">:users</span><span class="p">,</span> <span class="ss">:controllers</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:sessions</span> <span class="o">=&gt;</span> <span class="s2">&quot;sessions&quot;</span> <span class="p">})</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h1&gt;...&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>If you've followed every step along the way, everything should now be in place. Fire up your server (<code>rails s</code>) and open another terminal window. Now you should be able to <code>curl</code> into youw web app and get back - if credentials are correct - the token you'll use for your subsequent queries. Try running the following (with the email and password params you used at sign up):</p>
+
+<p><code>
+curl http://localhost:3000/users/sign_in --data "email=admin@example.com&amp;password=password"
+</code></p>
+
+<p>You should get a response similar to:</p>
+
+<p><code>
+{"success":true,"auth_token":"hfNklifqaFBkvokWoYzC","email":"admin@example.com"}
+</code></p>
+
+<p>You can now run a query form the terminal with the following command <code>curl http://localhost:3000/products.json --data "auth_token=hfNklifqaFBkvokWoYzC"</code> and you should get back the JSON from your backend.</p>
+
+<p>We're done! Just use this very same technique from your mobile client and store your token to use in your queries.</p>
+
+<p>You can download the full source code of the above app from <a href="https://github.com/chasseurmic/devise-mobile-auth">this Github repo</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

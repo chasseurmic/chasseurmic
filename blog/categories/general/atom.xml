@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: general | Cocoa Hunter]]></title>
+  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/general/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/cocoahunter/"/>
+  <updated>2013-06-02T23:47:57+02:00</updated>
+  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <author>
+    <name><![CDATA[Michelangelo Chasseur]]></name>
+    <email><![CDATA[chasseurmi@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hello world!]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world/"/>
+    <updated>2012-12-16T21:33:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/16/hello-world</id>
+    <content type="html"><![CDATA[<p>I always wanted to write my own blog, but for lack of time and patience, I never really did it (even though I tried more than once). Since I recently left my old job as an IT project manager at an healthcare company to start my own business and be a fulltime iOS developer, I’ve been thinking about doing more serious stuff. Long story short: here’s the blog I’d always wanted to write.</p>
+
+<p>But let’s start from the beginning. My name is Michelangelo Chasseur (hence the blog title’s <em>word game</em>) , and I currently work as head of software development for a <a href="http://www.touchwa.re">small Italian company</a> focused on software development for mobile platforms (and by mobile I mean <em>mainly</em> iOS). I’ve never been a fulltime developer until a few months ago. I’ve been working in the IT industry (for Intel and ASUS just to name a couple) for more than 5 years, but I started developing as a professional only in 2010 following an amazing experience at <a href="http://www.bignerdranch.com">BNR</a>. Since then I managed to get a couple of apps on the Apple App Store. Nothing really groundbreaking. And by the way, my academic background is not a technical one, in fact I happen to have a humanities degree in oriental languages...</p>
+
+<p>Touchware, the startup I co-founded, will focus on developing mobile apps – mainly in B2B – and digital publishing. We are currently working on bringing on the iPad and the iPhone some really nice children tales.</p>
+
+<p>So why – you ask – would I want to start a new blog? There’s a very simple reason: because I’d love sharing what I’ve learned and giving back to the community that has helped me up to this moment. Without the tips of some very nice and helpful fellow developers I wouldn’t be where I stand now. In the course of my past and present projects I’ve learned some tricks I think are worth sharing. They made my life easier. I hope they’ll be make yours as well.</p>
+
+<p>I’ll post ramblings and thoughts about everything even <em>loosely</em> related to iOS and Cocoa development. And I promise I won’t exclusively limit myself to Objective C and Cocoa frameworks. In my spare time I love tinkering with open hardware projects, so expect some posts about Arduino, RaspberryPi and the like. Plus, I’m a big fan of Ruby on Rails.</p>
+
+<p>I’ll try and make my best to share some insightful thoughts. At any moment you can leave on the blog your thoughts, feedback, advice, disapproval. Or you can just drop me a line at development[at]touchwa.re</p>
+
+<p>And now, let’s get started with some real stuff.</p>
+]]></content>
+  </entry>
+  
+</feed>

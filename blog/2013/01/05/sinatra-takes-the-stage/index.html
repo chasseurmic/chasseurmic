@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sinatra takes the stage, Padrino the cannoli. - Cocoa Hunter</title>
+  <meta name="author" content="Michelangelo Chasseur">
+
+  
+  <meta name="description" content="I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5972693-11']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
+  
+    <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/cocoahunter/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:chasseurmic.github.com/cocoahunter" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Sinatra Takes the Stage, Padrino the Cannoli.</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-05T21:43:00+01:00" pubdate data-updated="true">Jan 5<span>th</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
+
+<h2>Easy singing with Sinatra!</h2>
+
+<p>Sinatra is technically a Ruby DSL, a <em>domain specific language</em>. It’s not a framework, it’s kind of a <em>specific language layer</em> – on top of Ruby and Thin – that lets you implement in an easy and fast way a working web server.</p>
+
+<p>Let’s get straight to an example. The following code sets up a server and responds with a simple <em>&#8220;Hello world!&#8221;</em> to each request made to the base url. Create a new <em>.rb</em> file and copy the following snippet in it:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+</span><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="s2">&quot;Hello world!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then run it from the terminal with <code>ruby your_file_name.rb</code>. You should see something similar to:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>> ruby sinatra.rb 
+</span><span class='line'>== Sinatra/1.3.3 has taken the stage on 4567 for development with backup from Thin
+</span><span class='line'>>> Thin web server (v1.3.1 codename Triple Espresso)
+</span><span class='line'>>> Maximum connections set to 1024
+</span><span class='line'>>> Listening on 0.0.0.0:4567, CTRL+C to stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can visit <em>localhost:4567</em> and, voilà, you webpage is served!</p>
+
+<!-- more -->
+
+
+<p>The good thing about Sinatra is that it&#8217;s lightweight, fast and very easy to setup. Plus the code it&#8217;s neat and readable: all the CRUD methods are explicit in that the routes are defined with HTTP verbs (get, post, put, delete). The bad thing – which for someone might be a good thing – is that there&#8217;s no <em>magic</em> in it: I mean no helpers, no generators, not all the little nice conventions Rails has accustomed us to and is renowned for. If you want to setup even a simple API in Sinatra you have to code almost everything by hand. That&#8217;s where Padrino comes in…</p>
+
+<h2>Padrino</h2>
+
+<p>Padrino is a web framework for Sinatra. Padrino is Sinatra at the core; according to Padrino&#8217;s project <a href="http://www.padrinorb.com/">home page</a>, <em>Padrino was created to make it fun and easy to code more advanced web applications while still adhering to the spirit that makes Sinatra great!</em>.</p>
+
+<p>Padrino combines the simplicity of Sinatra with some of the more useful functions of Rails (generators, basic scaffolding, helpers, form builders…). And it&#8217;s even got a nice admin panel right out of the box (Django-style if you know what I mean) which is a very useful feature if you want to run an API where only a predefined number of admins can insert and modify data.</p>
+
+<h3>API with Padrino</h3>
+
+<p>We&#8217;ll now build the same API we built in a <a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">previous post</a> so you&#8217;ll see how Padrino fares against Rails.</p>
+
+<p>Run the following code in you terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install padrino
+</span><span class='line'>padrino g project padrino-api -e haml -d activerecord -b
+</span><span class='line'>cd padrino-api
+</span><span class='line'>padrino g admin
+</span><span class='line'>padrino g model product name:string -a app
+</span><span class='line'>padrino rake ar:migrate seed
+</span><span class='line'>padrino g admin_page product
+</span><span class='line'>padrino start</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;s it! You&#8217;re ready to go. What you&#8217;ve just done is:</p>
+
+<ul>
+<li>creating an app;</li>
+<li>scaffolding the admin panel;</li>
+<li>creating a basic product model (with simply a name of <em>string</em> type);</li>
+<li>creating the tables in the database and seeding it with some informations (email, password) of the admin user;</li>
+<li>generating the necessary views inside the admin panel to manage your newly created model;</li>
+<li>starting the app.</li>
+</ul>
+
+
+<p>If you now visit <em>localhost:3000/admin</em> you should be able to login and see a section dedicated to your Product model. You can now start adding some objects to your DB. One last thing before being able to consume the API: inside your project directory, in you <em>app.rb</em> file add the following snippet.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="vi">@products</span> <span class="o">=</span> <span class="no">Product</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>  <span class="vi">@products</span><span class="o">.</span><span class="n">to_json</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This code is basically telling your app that whenever a request hits the base url it has to retrieve all the <em>Product</em> objects, serialize them and respond with some JSON. That&#8217;s it. If you now visit <em>localhost:3000/</em> you should get something like this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span>
+</span><span class='line'>  <span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:23:42+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:07+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'>  <span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Movie&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'>  <span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;iPhone&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cool, huh? In a couple of minutes we have defined and set up an API. Of course it&#8217;s still very basic stuff, but with some polishing it shouldn&#8217;t take you much effort to build a more solid API for your mobile app.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="https://plus.google.com/101601486820561758086?rel=author">Michelangelo Chasseur</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-05T21:43:00+01:00" pubdate data-updated="true">Jan 5<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/cocoahunter/blog/categories/api/'>API</a>, <a class='category' href='/cocoahunter/blog/categories/padrino/'>Padrino</a>, <a class='category' href='/cocoahunter/blog/categories/rest/'>REST</a>, <a class='category' href='/cocoahunter/blog/categories/ruby/'>Ruby</a>, <a class='category' href='/cocoahunter/blog/categories/sinatra/'>Sinatra</a>, <a class='category' href='/cocoahunter/blog/categories/webservice/'>webservice</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/" data-via="chasseurmic" data-counturl="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/" title="Previous Post: API for iOS - Part 2">&laquo; API for iOS - Part 2</a>
+      
+      
+        <a class="basic-alignment right" href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/" title="Next Post: Basic Interface Styling in iOS">Basic Interface Styling in iOS &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("chasseurmic", 5, false);
+    });
+  </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
+  
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/chasseurmic?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/chasseurmic">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Michelangelo Chasseur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'cocoahunter';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/';
+        var disqus_url = 'http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

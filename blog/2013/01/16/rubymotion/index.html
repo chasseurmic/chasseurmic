@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>RubyMotion. Share Ruby love with your apps. - Cocoa Hunter</title>
+  <meta name="author" content="Michelangelo Chasseur">
+
+  
+  <meta name="description" content="In this post and the following one I will talk about RubyMotion. RubyMotion is a runtime for buiding native iOS apps using thethe Ruby language. Ruby &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/">
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5972693-11']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
+  
+    <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/cocoahunter/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:chasseurmic.github.com/cocoahunter" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">RubyMotion. Share Ruby Love With Your Apps.</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-16T14:26:00+01:00" pubdate data-updated="true">Jan 16<span>th</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In this post and the following one I will talk about RubyMotion.</p>
+
+<p><a href="http://www.RubyMotion.com/">RubyMotion</a> is a runtime for buiding native iOS apps using thethe Ruby language. Ruby, you say? Why Ruby? Well, Ruby is the only other language (the first obviously being Objective-C) officially supported by Apple for developing native apps.</p>
+
+<p>While <a href="hthettp://macruby.org/">MacRuby</a>, a Ruby interpreter on top of the Objective-C runtime providing a seamless bridge between Ruby and OS X <em>Cocoa</em> ecosystem, is an open-source project started in 2007 and backed by Apple itself, RubyMotion is a commercial project carried out by a team of engineers led by the very same individual, Laurent Sansonetti, that successfully launched MacRuby.</p>
+
+<!-- more -->
+
+
+<p>In the last few years some prominent Apple managers have gone as far as <a href="http://arstechnica.com/apple/2010/06/copland-2010-revisited/">predicting that Ruby could be Apple&#8217;s next language</a>. Others are more skeptical about the subject, mainly because Objective-C is something Apple can directly control, and Ruby isn&#8217;t. I tend to agree with the latter opinion, but it&#8217;s still darn interesting to have an alternative. And it&#8217;s even more interesting when we&#8217;re talking about Ruby, a fast, fun, dynamic and prodcutive language. That&#8217;s why RubyMotion, announced only in May 2012, is gaining momentum.</p>
+
+<p>RubyMotion can leverage all the features provided by the Cocoa Touch APIs and at the same time harness the power and expressiveness of Ruby. To be more technical, by sharing the same object model infrastructure, Objective-C and RubyMotion APIs can be interchangeable at no additional performance expense. For example – in more concrete terms arrays inherits both from <code>NSArray</code> (Objective-C) and <code>Enumerable</code> (Ruby), allowing you to do something like:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="vi">@tableData</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">to_a</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">tableView</span><span class="p">,</span> <span class="n">numberOfRowsInSection</span><span class="p">:</span> <span class="n">section</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@tableData</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">tableView</span><span class="p">,</span> <span class="n">cellForRowAtIndexPath</span><span class="p">:</span> <span class="n">indexPath</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">#setup the cell...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">cell</span><span class="o">.</span><span class="n">textLabel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="vi">@tableData</span><span class="o">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="o">].</span><span class="n">to_s</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">cell</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#8230;which to me seems pretty cool!</p>
+
+<p>Another cool feature is that you have at your disposal kind of an interactive <a href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a>: basically you simply build and run your app by running the <code>rake</code> command from the terminal, and while the Simulator is open, the Terminal should be displaying an <em>irb</em>-esque prompt where you can play in real time with you running app (you can for example change at runtime the attributes of your views).</p>
+
+<p>For a live demo and more infos on RubyMotion you should definetely check out this <a href="http://pragmaticstudio.com/screencasts/rubymotion">PragProg&#8217;s free screencast</a>.</p>
+
+<p>I&#8217;ve been playing with RubyMotion for the last couple of months and I like it. I really do. Anyway, I still feel more comfortable with Objective-C, although there are definetely some advantages that the Ruby language can count on (mainly when working with data - arrays, hashes and the like).</p>
+
+<p>To say it all, in my opinion there are still a couple of drawbacks: code autocompletion and error detection. Both of these <em>issues</em> can be related to the IDE: Xcode. Let&#8217;s run thru them one at a time:</p>
+
+<ul>
+<li><strong>error detection</strong>: the new Apple LLVM engine is constantly working in the background to understand the code and to alert the developer of coding mistakes. This is a feature that a dynamic language will probably never achieve. At the end of the day, Rubymotion is just plain Ruby code (with some little tweaks added to deal with <em>keywords</em> contained in Objective-C method syntax). You can use any text editor (TextMate, Sublime Text, <em>put here your favorite text editor</em>) to get the job done. Text editors won&#8217;t give you error-detection.</li>
+<li><strong>autocompletion</strong>: no auto-completion in your text editor, means not having the means to tap easuly into Cocoa touch APIs. Glad for you if you can remember a method like <code>- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath</code>, but for mere mortals I think this is a no brainer feature to count on. Of course you can have snippets in TextMate or Sublime, but they can&#8217;t stand a chance in comparison to what Xcode can do.</li>
+</ul>
+
+
+<p>[EDIT] <a href="http://blog.jetbrains.com/ruby/2012/12/enjoy-rubymine-enoki-eap-while-were-all-still-alive/">JetBrains has recently announced</a> that the next version of RubyMine will support RubyMotion (with autocompletion features). You can already check out their <a href="http://confluence.jetbrains.com/display/RUBYDEV/RubyMine+EAP">early access preview by downloading it here</a>. This seems promising and could speed up the development process of a RubyMotion app by an order of magnitude!</p>
+
+<p>In the next episode I&#8217;ll talk about what you can actually do with RubyMotion by providing a couple of concrete example.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn"><a href="https://plus.google.com/101601486820561758086?rel=author">Michelangelo Chasseur</a></span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-16T14:26:00+01:00" pubdate data-updated="true">Jan 16<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/cocoahunter/blog/categories/macruby/'>MacRuby</a>, <a class='category' href='/cocoahunter/blog/categories/objective-c/'>Objective-C</a>, <a class='category' href='/cocoahunter/blog/categories/ruby/'>Ruby</a>, <a class='category' href='/cocoahunter/blog/categories/rubymotion/'>RubyMotion</a>, <a class='category' href='/cocoahunter/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/" data-via="chasseurmic" data-counturl="http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/" title="Previous Post: Basic Interface Styling in iOS">&laquo; Basic Interface Styling in iOS</a>
+      
+      
+        <a class="basic-alignment right" href="/cocoahunter/blog/2013/02/13/restful-api-authentication/" title="Next Post: RESTful API authentication">RESTful API authentication &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("chasseurmic", 5, false);
+    });
+  </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
+  
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/chasseurmic?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/chasseurmic">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Michelangelo Chasseur -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'cocoahunter';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/';
+        var disqus_url = 'http://chasseurmic.github.com/cocoahunter/blog/2013/01/16/rubymotion/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

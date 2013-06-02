@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: backend | Cocoa Hunter]]></title>
+  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/backend/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/cocoahunter/"/>
+  <updated>2013-06-02T23:47:57+02:00</updated>
+  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <author>
+    <name><![CDATA[Michelangelo Chasseur]]></name>
+    <email><![CDATA[chasseurmi@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RESTful API authentication]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication/"/>
+    <updated>2013-02-13T15:37:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/02/13/restful-api-authentication</id>
+    <content type="html"><![CDATA[<p>In a couple of our past posts we saw how to build a private API (<a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">Part 1</a> - <a href="http://cocoahunter.com/blog/2012/12/28/api-for-ios-part-2/">Part 2</a> ) that could be used as the backend for an iOS app. Let's take it a step further.</p>
+
+<p>Today I will show you how to use that backend to actually let users log in and out (on the mobile device) from the system by providing a RESTful API for the authentication process. We'll create a basic app from scratch step by step. Bear with me.</p>
+
+<!-- more -->
+
+
+<p>First of all, let's fire the terminal and create a new rails app: <code>rails new AuthTest</code>. Then <code>cd</code> into the newly created directory. Open your Gemfile and add the following line to the end of the file as follows:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><code>devise</code> is an awesome gem to deal with authentication. You can read more about it on the official <a href="https://github.com/plataformatec/devise">Github page</a> or watch the very good screencasts from Ryan Bates on <a href="http://railscasts.com/episodes?utf8=%E2%9C%93&amp;search=devise">Railscasts</a>.</p>
+
+<p>You can now run the following command in the terminal:</p>
+
+<p><code>
+bundle install
+rails g devise:install
+rails g devise User
+rake db:migrate
+</code></p>
+
+<p>We have now everything we need to manage users. The <code>rails g devise User</code> has scaffolded a devise model called User. Let's open it (/app/models/user.rb) and modify it by adding <code>:token_authenticatable</code> in the <code>devise</code> section of the file. This will let the user authenticate thru a token that our backend will generate and that mobile client will use when querying the web application.</p>
+
+<p>Now let's make some changed in the config (/config/initializers/devise.rb):</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">skip_session_storage</span> <span class="o">=</span> <span class="o">[</span><span class="ss">:http_auth</span><span class="p">,</span> <span class="ss">:token_auth</span><span class="o">]</span>
+</span><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">token_authentication_key</span> <span class="o">=</span> <span class="ss">:auth_token</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>To understand what we just did, you can read more in the config file just above the methods you've just changed. Devise is very well documented.</p>
+
+<p>We also need to generate a migration to add an <code>authentication_token</code> field to the Users table where the token will be stored as a string. Run <code>rails g migration AddTokenToUsers authentication_token</code>. Your newly generated migration file should look like this:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">AddTokenToUsers</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;add_column :users, :authentication_token, :string</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Now let's scaffold a new resource, the one only authenticated users will be able to access. Run <code>rails g scaffold Product name:string description:text</code>.</p>
+
+<p>Let's open <code>products_controller.rb</code> and modify it as follows:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ProductsController</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:authenticate_user!</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h1&gt;...&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Migrate (<code>rake db:migrate</code>) your database again.</p>
+
+<p>Let's also delete <code>public/index.html</code> and modify our <code>routes.rb</code> file so that our root page is going to be the products controller index action:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">AuthTest</span><span class="o">::</span><span class="no">Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">resources</span> <span class="ss">:products</span>
+</span><span class='line'>  <span class="n">root</span> <span class="ss">:to</span> <span class="o">=&gt;</span> <span class="s1">&#39;products#index&#39;</span>
+</span><span class='line'>  <span class="n">devise_for</span> <span class="ss">:users</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>If you now run your server (<code>rails s</code>) you'll see that your app is going to ask you to login.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/devise-auth-api/api-auth1.png"></p>
+
+<p>Obviously we currently haven't generated any users, so let's go ahead and create one. Click on sign up and complete the process. You may also add a couple of Products just to make sure everything works alright.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/devise-auth-api/api-auth2.png"></p>
+
+<p>If you've managed to make everything run up to this point, we can now move to the juicy part. To authenticate the user we'll be subclassing Devise::SessionsController with our own controller that basically runs a check on a given username and password and, if valid, returns a token. In a way, users are signed in to the backend as long as they have a valid authentication token. It's up to you the decision relative to the expiration policies of the token.</p>
+
+<p>Create a new file in the <code>/app/controllers</code> directory and name it <code>sessions_controller.rb</code>. Paste in it the following code:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">Devise</span><span class="o">::</span><span class="no">SessionsController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:authenticate_user!</span><span class="p">,</span> <span class="ss">:except</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:create</span><span class="p">,</span> <span class="ss">:destroy</span><span class="o">]</span>
+</span><span class='line'>  <span class="n">respond_to</span> <span class="ss">:json</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  def create&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">resource</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_for_database_authentication</span><span class="p">(</span><span class="ss">:email</span> <span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="k">return</span> <span class="n">invalid_login_attempt</span> <span class="k">unless</span> <span class="n">resource</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">valid_password?</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">sign_in</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">resource</span><span class="o">.</span><span class="n">ensure_authentication_token!</span>
+</span><span class='line'>  <span class="n">render</span> <span class="ss">:json</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">{</span><span class="ss">:success</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="kp">true</span><span class="p">,</span> <span class="ss">:auth_token</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">resource</span><span class="o">.</span><span class="n">authentication_token</span><span class="p">,</span> <span class="ss">:email</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">resource</span><span class="o">.</span><span class="n">email</span><span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="n">invalid_login_attempt</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  def destroy&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">resource</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_for_database_authentication</span><span class="p">(</span><span class="ss">:email</span> <span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="n">resource</span><span class="o">.</span><span class="n">authentication_token</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'><span class="n">resource</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'><span class="n">render</span> <span class="ss">:json</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">{</span><span class="ss">:success</span><span class="o">=&amp;</span><span class="n">gt</span><span class="p">;</span><span class="kp">true</span><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  protected&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">def</span> <span class="nf">invalid_login_attempt</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;render :json=&amp;gt; {:success=&amp;gt;false, :message=&amp;gt;&quot;Error with your login or password&quot;}, :status=&amp;gt;401</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Now you have to tell your <code>routes.rb</code> file that Devise should be using our custom controller when dealing with user sessions instead of the standard one. Modify you Routes file accordingly:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h1&gt;...&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">devise_for</span><span class="p">(</span><span class="ss">:users</span><span class="p">,</span> <span class="ss">:controllers</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:sessions</span> <span class="o">=&gt;</span> <span class="s2">&quot;sessions&quot;</span> <span class="p">})</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h1&gt;...&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>If you've followed every step along the way, everything should now be in place. Fire up your server (<code>rails s</code>) and open another terminal window. Now you should be able to <code>curl</code> into youw web app and get back - if credentials are correct - the token you'll use for your subsequent queries. Try running the following (with the email and password params you used at sign up):</p>
+
+<p><code>
+curl http://localhost:3000/users/sign_in --data "email=admin@example.com&amp;password=password"
+</code></p>
+
+<p>You should get a response similar to:</p>
+
+<p><code>
+{"success":true,"auth_token":"hfNklifqaFBkvokWoYzC","email":"admin@example.com"}
+</code></p>
+
+<p>You can now run a query form the terminal with the following command <code>curl http://localhost:3000/products.json --data "auth_token=hfNklifqaFBkvokWoYzC"</code> and you should get back the JSON from your backend.</p>
+
+<p>We're done! Just use this very same technique from your mobile client and store your token to use in your queries.</p>
+
+<p>You can download the full source code of the above app from <a href="https://github.com/chasseurmic/devise-mobile-auth">this Github repo</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[API for iOS - Part 2]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2/"/>
+    <updated>2012-12-28T12:57:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/28/api-for-ios-part-2</id>
+    <content type="html"><![CDATA[<p>In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist new objects (we called them Products) in the local database via the very simple interface Rails created for you and query them as JSON from <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>.</p>
+
+<p>I inserted a few objects and this is the JSON I can retrieve from my API:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span><span class="err">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;pre&gt;&lt;code&gt;</span><span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:08Z&quot;</span>
+</span><span class='line'><span class="p">},</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Movie&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:16Z&quot;</span>
+</span><span class='line'><span class="p">},</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;created_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;iPhone&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-12-28T12:02:32Z&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="err">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;p&gt;</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Since each object has a property called name, basically a simple string, we want to build an iOS app that retrieves and parses the JSON, and then displays the results in a table view. Pretty basic stuff, but at the heart of much more complex projects.</p>
+
+<!-- more -->
+
+
+<h2>Starting a new Xcode project.</h2>
+
+<p>Open Xcode and start a new project and choose the single Single View Application template.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api1.png"></p>
+
+<p>Then type your app name, and select <em>Use Storyboards</em> and <em>Use Automatic Reference Counting</em>.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api2.png"></p>
+
+<p>In the summary view of your project, under targets, make your app’s Deployment Target to be iOS 6.0 compatible or greater.</p>
+
+<h2>Installing dependencies using CocoaPods</h2>
+
+<p>To connect to our RESTful API we’re going to use <a href="http://restkit.org/">RestKit</a> an Objective-C framework for iOS that aims to simplify the interaction with RESTful web services. To manage our dependencies I suggest you use <a href="http://cocoapods.org/">CocoaPods</a>. I’m going to assume you already have CocoaPods installed on your system to continue with this tutorial (otherwise, just go to <a href="http://cocoapods.org/">here</a> and follow the instructions on how to install it). Now navigate or <em>cd</em> into you app directory and create a new file named <em>Podfile</em>. Open it and write the following:
+<code>
+platform :ios, '5.0'
+pod 'RestKit'
+</code>
+Then from the command line run
+<code>
+pod install
+</code>
+You shoul now have in you project dir a file with a <code>.xcworkspace</code> extension. From now on you should always work on this file when developing your app.</p>
+
+<h2>Customizing the storyboard</h2>
+
+<p>Open your workspace and navigate to your MainStoryboard.storyboard file. Delete the view controller in the storyboard and replace it with a Table View Controller (drag it on the storyboard from the Object Library). You can now delete (move to trash) the two ViewController.h / ViewController.m files from the Project Navigator in the left panel.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api3.png"></p>
+
+<p>Create (Command-N) a new Objective-C document and add it to your project.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api4.png"></p>
+
+<p>Name it MyTableViewController and make it inherit from the UITableViewController class.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api5.png"></p>
+
+<p>Back to the Storyboard you can now set the Class of your TableViewController to be a MyTableViewController in the Identity inspector.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api6.png"></p>
+
+<p>You should also set the identifier of the cell to <em>Cell</em> so that we can dequeue the cell of the TableView from our code later on.
+<img src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api7.png"></p>
+
+<h2>Creating the model</h2>
+
+<p>Create a new Objective-C (Command-N) document and make it inherit from NSObject class. I’ll simply call it Product. This is how Product.h looks like:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Product.h  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">import</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">Foundation</span><span class="o">/</span><span class="n">Foundation</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="err">@</span><span class="n">interface</span> <span class="n">Product</span> <span class="o">:</span> <span class="n">NSObject</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="kt">int</span> <span class="n">product_id</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><em>Product.m</em> doesn’t need to be modified because with the latest release of Apple’s developer tools properties don’t need to be synthesized anymore. So we’re just declaring two properties in the header file, a name and an id.</p>
+
+<h2>Setting up the RestKit stack</h2>
+
+<p>Now we’re going to init the RestKit stack in order to be able to connect and retrieve data from our API.
+In <em>MyTableViewController.h</em> we need to declare an Array where we will store the incoming data:
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">retain</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">productsArray</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>In MyTableViewController.m, import the header files for RestKit and Product:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">import</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">RestKit</span><span class="o">/</span><span class="n">RestKit</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">import</span> <span class="s">&quot;Product.h&quot;</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Then, inside the <code>viewDidLoad</code> declare this method call:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">self</span> <span class="n">initRestKitStack</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Now let’s implement <code>initRestKitStack</code> method:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">initRestKitStack</span>
+</span><span class='line'><span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// Set debug logging level. Set to &#39;RKLogLevelTrace&#39; to see JSON payload</span>
+</span><span class='line'><span class="n">RKLogConfigureByName</span><span class="p">(</span><span class="s">&quot;RestKit/Network&quot;</span><span class="p">,</span> <span class="n">RKLogLevelTrace</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Set the base URL of our API</span>
+</span><span class='line'><span class="n">NSURL</span> <span class="o">*</span><span class="n">baseURL</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="s">@&quot;http://localhost:3000&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="n">RKObjectManager</span> <span class="o">*</span><span class="n">objectManager</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKObjectManager</span> <span class="nl">managerWithBaseURL:</span><span class="n">baseURL</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Enable Activity Indicator Spinner</span>
+</span><span class='line'><span class="p">[</span><span class="n">AFNetworkActivityIndicatorManager</span> <span class="n">sharedManager</span><span class="p">].</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">YES</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Map the JSON payload to our Product model with a dictionary</span>
+</span><span class='line'><span class="n">RKObjectMapping</span> <span class="o">*</span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKObjectMapping</span> <span class="nl">mappingForClass:</span><span class="p">[</span><span class="n">Product</span> <span class="n">class</span><span class="p">]];</span>
+</span><span class='line'><span class="p">[</span><span class="n">mapping</span> <span class="nl">addAttributeMappingsFromDictionary:</span><span class="err">@</span><span class="p">{</span>
+</span><span class='line'>    <span class="s">@&quot;name&quot;</span><span class="o">:</span> <span class="s">@&quot;name&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s">@&quot;id&quot;</span><span class="o">:</span> <span class="s">@&quot;product_id&quot;</span><span class="p">}];</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">RKResponseDescriptor</span> <span class="o">*</span><span class="n">responseDescriptor</span> <span class="o">=</span> <span class="p">[</span><span class="n">RKResponseDescriptor</span> <span class="nl">responseDescriptorWithMapping:</span><span class="n">mapping</span>
+</span><span class='line'>                    <span class="nl">pathPattern:</span><span class="s">@&quot;/products.json&quot;</span>
+</span><span class='line'>                    <span class="nl">keyPath:</span><span class="nb">nil</span>
+</span><span class='line'>                    <span class="nl">statusCodes:</span><span class="n">RKStatusCodeIndexSetForClass</span><span class="p">(</span><span class="n">RKStatusCodeClassSuccessful</span><span class="p">)];</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="n">objectManager</span> <span class="nl">addResponseDescriptor:</span><span class="n">responseDescriptor</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Load the object model via RestKit</span>
+</span><span class='line'><span class="p">[</span><span class="n">objectManager</span> <span class="nl">getObjectsAtPath:</span><span class="s">@&quot;/products.json&quot;</span> <span class="nl">parameters:</span><span class="nb">nil</span> <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">RKObjectRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">RKMappingResult</span> <span class="o">*</span><span class="n">mappingResult</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Store the results of our query into our mutable array</span>
+</span><span class='line'>    <span class="n">_productsArray</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nl">arrayWithArray:</span><span class="p">[</span><span class="n">mappingResult</span> <span class="n">array</span><span class="p">]];</span>
+</span><span class='line'>    <span class="c1">// Update table data after the fetch has finished</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tableView</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">RKObjectRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="p">}];</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>The code is commented inline, so you shouldn’t have any problems understanding it.  RestKit is a pretty massive framework and provides a lot of functionality, so if you think it could be of any help to you, it’d be better to read the documentation.</p>
+
+<p>Now let’s implement the table view methods:
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">pragma</span> <span class="n">mark</span> <span class="o">-</span> <span class="n">Table</span> <span class="n">view</span> <span class="n">data</span> <span class="n">source</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">ul</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nl">numberOfSectionsInTableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="n">tableView</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Return the number of sections.</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nl">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="n">tableView</span> <span class="nl">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="n">section</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Return the number of rows in the section.</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">[</span><span class="n">_productsArray</span> <span class="n">count</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="nl">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="n">tableView</span> <span class="nl">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="n">indexPath</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">UITableViewCell</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">tableView</span> <span class="nl">dequeueReusableCellWithIdentifier:</span><span class="s">@&quot;Cell&quot;</span> <span class="nl">forIndexPath:</span><span class="n">indexPath</span><span class="p">];</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>  <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">[(</span><span class="n">Product</span> <span class="o">*</span><span class="p">)[</span><span class="n">_productsArray</span> <span class="nl">objectAtIndex:</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">]</span> <span class="n">name</span><span class="p">];</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>  <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
+</ul>
+
+
+<h2>Build and run</h2>
+
+<p>Now you should start your rails API server. Just cd from the command line into the appropriate directory and run <code>rails s</code>. If you build and run you iOS app you should now be seing the Table View populated with the data from your API, something like the following:</p>
+
+<p><img class="center" src="http://cocoahunter-blog.s3.amazonaws.com/ios-api/api8.png" width="200"></p>
+
+<h2>Conclusion</h2>
+
+<p>Of course these are only humble beginnings, there’d still be much to say about REST APIs. The simple app we built is lacking a lot of features (the most important perhaps is data persistence on the device), but we’re on the good track. In one of my future posts I’ll talk about integration of RestKit with CoreData.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[API for iOS app - part 1]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app/"/>
+    <updated>2012-12-17T20:23:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2012/12/17/api-for-ios-app</id>
+    <content type="html"><![CDATA[<p>And here we go, with out firts technical post.</p>
+
+<p>One of the problems we, as mobile developers, have to face in almost any mid-to-high complexity project, is integrating our app with a backend. To solve this issue, the market offers today many <a href="http://en.wikipedia.org/wiki/Backend_as_a_service">BaaS</a> solutions. Just to name a few platforms that offer an iOS SDK that could be easily integrated (disclaimer: I’m not endorsing anyone or suggesting that the following are better than others):</p>
+
+<ul>
+<li><a href="https://parse.com/">Parse</a></li>
+<li><a href="https://www.stackmob.com/">Stackmob</a></li>
+<li><a href="http://www.appcelerator.com/">Appcelerator</a></li>
+</ul>
+
+
+<p>Of course there are as many advantages as drawbacks in opting for such a service. On the one side there’s the ease of use of APIs to retrieve and parse objects you need to store on those backends. On the other side you’re tying your app to a specific service and you’re exposing yourself to higher expenses (BaaS generally offer free plans for quite small applications, but if you’re going to scale then you’ll need to share your revenues not only with Apple).</p>
+
+<p>The approach I favored in my last projects is somewhat mixed. I now tend to outsource some of the more <em>difficult</em> stuff (like user management, which requires setting up the whole signup process) and insource the development of very simple APIs.</p>
+
+<p>I’ve been personally using Stackmob and Appcelerator backends for a couple of months. I admit they have some quite useful features, but let’s say you just need some kind of web platform (a stripped down CMS?) where you (or your clients) could input and update some basic informations. A typical example could be a product catalog: entries in the online database represent <em>goods</em>, where each good is associated to a <em>category</em>. And you just need to add, update or delete items so that your catalog is always up-to-date. This is the optimal situation where a custom, self-developed backend could make your day.</p>
+
+<p>I will now guide you step by step in the process of creating and stubbing a very simple <a href="http://en.wikipedia.org/wiki/Representational_state_transfer">RESTful</a> webservice made with <a href="http://rubyonrails.org/">Ruby on Rails</a> (RoR or Rails for short). In a later post I’ll talk about how to consume this webservice with an iOS application. Let’s get our hands dirty!</p>
+
+<!-- more -->
+
+
+<h2>Installing necessary software</h2>
+
+<p>First thing first: grab a copy of <a href="http://git-scm.com/">Git</a> and install it on your Mac (current stable release at the time of this writing 1.8.0.2).</p>
+
+<p>You’ll then need to install (or update) Ruby on your Mac. I suggest you use <a href="https://rvm.io/">rvm</a>: it’ll help you manage Ruby versions and gems (there’s even a GUI for Mac OS X - <a href="http://jewelrybox.unfiniti.com/">JewelryBox</a>). There’s plenty of documentation <a href="http://www.ruby-lang.org/en/downloads/">here</a>. Basically, from your Terminal, run the folloing command:
+<code>
+$ \curl -L https://get.rvm.io | bash -s stable --ruby
+</code>
+The above command will install both RVM and the latest version of Ruby. Then install the latest version of Ruby (1.9.3 as of this post):
+<code>
+rvm install 1.9.3
+</code>
+And use the newly installed Ruby:
+<code>
+rvm use 1.9.3
+</code>
+If you now run
+<code>
+ruby --version
+</code>
+you should see something like this:
+<code>
+ruby 1.9.3p194 (2012-04-20 revision 35410) [x86_64-darwin11.4.0]
+</code>
+Almost done... To install rails, just type:
+<code>
+gem install rails
+</code>
+That’s it! Now we’re good to go.</p>
+
+<h2>Set up your first RoR project</h2>
+
+<p>Now from the terminal navigate (<em>cd</em>) into a directory where you’ll want to store the Rails project and type:
+<code>
+rails new my-first-api
+</code>
+Rails will generate a whole bunch of files. I’m not going to cover here what all those files do (you can find plenty of informations online - you could <a href="http://guides.rubyonrails.org/getting_started.html">start here</a> if you wanna learn more), but keep in mind that Rails was built with a <em>convention over configuration</em> philosophy and that therefore the command you just ran basically set up for you a fully functional application. In fact, if you cd (<code>cd my-first-api</code>) in the previously generated directory and run in the terminal:
+<code>
+rails server
+</code>
+you can start a local server to serve web pages on your machine. If you’ll now visit <a href="http://localhost:3000/">http://localhost:3000/</a> you should see the standard Rails welcome page. Congrats, you’ve just built your first RoR app!</p>
+
+<h2>Create a basic API</h2>
+
+<p>Now it’s time to setup a very basic API that you’ll use to populate a product table (later we’ll retrieve those products as JSON). If you’re still running you server (the one you started before with <code>rails server</code>, you can now shut it down by pressing <em>ctrl-c</em>.</p>
+
+<p>Let’s keep things simple: products, for the time being, will be represented only by their name (in a future post I’ll show you how to add associations, a category for example).</p>
+
+<p>So, type in the terminal:
+<code>
+rails generate scaffold Product name:string
+</code>
+The command you just ran made Rails create all the files needed (Model, Views and Controller - <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC</a>) to respond to <a href="http://www.informit.com/articles/article.aspx?p=1671632&amp;seqNum=5">standard RESTful actions</a>. Now you’ll need to generate the corresponding database tables (by default Rails uses <a href="http://www.sqlite.org/">SQLite</a> in a development environment):
+<code>
+rake db:migrate
+</code>
+Let’s start the server again (you can just type <code>rails s</code>) and visit <a href="http://localhost:3000/products">http://localhost:3000/products</a>. You should now be able to add, update and delete your products! The site is not very pretty, but it’s fully functional. You can already retrieve your objects in JSON format by visiting <a href="http://localhost:3000/products.json">http://localhost:3000/products.json</a>. Cool, huh?</p>
+
+<p>In the next part I’ll show you how to easily implement a RESTful compliant iOS app to consume the webservice we just created.</p>
+]]></content>
+  </entry>
+  
+</feed>

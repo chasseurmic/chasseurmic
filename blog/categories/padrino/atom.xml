@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Padrino | Cocoa Hunter]]></title>
+  <link href="http://chasseurmic.github.com/cocoahunter/blog/categories/padrino/atom.xml" rel="self"/>
+  <link href="http://chasseurmic.github.com/cocoahunter/"/>
+  <updated>2013-06-02T23:47:57+02:00</updated>
+  <id>http://chasseurmic.github.com/cocoahunter/</id>
+  <author>
+    <name><![CDATA[Michelangelo Chasseur]]></name>
+    <email><![CDATA[chasseurmi@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Sinatra takes the stage, Padrino the cannoli.]]></title>
+    <link href="http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/"/>
+    <updated>2013-01-05T21:43:00+01:00</updated>
+    <id>http://chasseurmic.github.com/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage</id>
+    <content type="html"><![CDATA[<p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
+
+<h2>Easy singing with Sinatra!</h2>
+
+<p>Sinatra is technically a Ruby DSL, a <em>domain specific language</em>. It’s not a framework, it’s kind of a <em>specific language layer</em> – on top of Ruby and Thin – that lets you implement in an easy and fast way a working web server.</p>
+
+<p>Let’s get straight to an example. The following code sets up a server and responds with a simple <em>"Hello world!"</em> to each request made to the base url. Create a new <em>.rb</em> file and copy the following snippet in it:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+</span><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="s2">&quot;Hello world!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Then run it from the terminal with <code>ruby your_file_name.rb</code>. You should see something similar to:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;blockquote>&lt;p>ruby sinatra.rb
+</span><span class='line'>== Sinatra/1.3.3 has taken the stage on 4567 for development with backup from Thin&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;blockquote>&lt;p>Thin web server (v1.3.1 codename Triple Espresso)
+</span><span class='line'>Maximum connections set to 1024
+</span><span class='line'>Listening on 0.0.0.0:4567, CTRL+C to stop</span></code></pre></td></tr></table></div></figure></notextile></div></p></blockquote></blockquote>
+
+<p>Now you can visit <em>localhost:4567</em> and, voilà, you webpage is served!</p>
+
+<!-- more -->
+
+
+<p>The good thing about Sinatra is that it's lightweight, fast and very easy to setup. Plus the code it's neat and readable: all the CRUD methods are explicit in that the routes are defined with HTTP verbs (get, post, put, delete). The bad thing – which for someone might be a good thing – is that there's no <em>magic</em> in it: I mean no helpers, no generators, not all the little nice conventions Rails has accustomed us to and is renowned for. If you want to setup even a simple API in Sinatra you have to code almost everything by hand. That's where Padrino comes in…</p>
+
+<h2>Padrino</h2>
+
+<p>Padrino is a web framework for Sinatra. Padrino is Sinatra at the core; according to Padrino's project <a href="http://www.padrinorb.com/">home page</a>, <em>Padrino was created to make it fun and easy to code more advanced web applications while still adhering to the spirit that makes Sinatra great!</em>.</p>
+
+<p>Padrino combines the simplicity of Sinatra with some of the more useful functions of Rails (generators, basic scaffolding, helpers, form builders…). And it's even got a nice admin panel right out of the box (Django-style if you know what I mean) which is a very useful feature if you want to run an API where only a predefined number of admins can insert and modify data.</p>
+
+<h3>API with Padrino</h3>
+
+<p>We'll now build the same API we built in a <a href="http://cocoahunter.com/blog/2012/12/17/api-for-ios-app/">previous post</a> so you'll see how Padrino fares against Rails.</p>
+
+<p>Run the following code in you terminal:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install padrino
+</span><span class='line'>padrino g project padrino-api -e haml -d activerecord -b
+</span><span class='line'>cd padrino-api
+</span><span class='line'>padrino g admin
+</span><span class='line'>padrino g model product name:string -a app
+</span><span class='line'>padrino rake ar:migrate seed
+</span><span class='line'>padrino g admin_page product
+</span><span class='line'>padrino start</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>That's it! You're ready to go. What you've just done is:</p>
+
+<ul>
+<li>creating an app;</li>
+<li>scaffolding the admin panel;</li>
+<li>creating a basic product model (with simply a name of <em>string</em> type);</li>
+<li>creating the tables in the database and seeding it with some informations (email, password) of the admin user;</li>
+<li>generating the necessary views inside the admin panel to manage your newly created model;</li>
+<li>starting the app.</li>
+</ul>
+
+
+<p>If you now visit <em>localhost:3000/admin</em> you should be able to login and see a section dedicated to your Product model. You can now start adding some objects to your DB. One last thing before being able to consume the API: inside your project directory, in you <em>app.rb</em> file add the following snippet.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="vi">@products</span> <span class="o">=</span> <span class="no">Product</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>  <span class="vi">@products</span><span class="o">.</span><span class="n">to_json</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This code is basically telling your app that whenever a request hits the base url it has to retrieve all the <em>Product</em> objects, serialize them and respond with some JSON. That's it. If you now visit <em>localhost:3000/</em> you should get something like this:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">[</span><span class="err">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;pre&gt;&lt;code&gt;</span><span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:23:42+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:07+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'><span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Movie&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:13+01:00&quot;</span><span class="p">},</span>
+</span><span class='line'><span class="p">{</span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;iPhone&quot;</span><span class="p">,</span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="s2">&quot;2013-01-05T23:28:17+01:00&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="err">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;p&gt;</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Cool, huh? In a couple of minutes we have defined and set up an API. Of course it's still very basic stuff, but with some polishing it shouldn't take you much effort to build a more solid API for your mobile app.</p>
+]]></content>
+  </entry>
+  
+</feed>
