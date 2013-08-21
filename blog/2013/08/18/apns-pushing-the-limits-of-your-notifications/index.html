@@ -268,7 +268,7 @@ Open your Gemfile and add the following line at the end of the file:</p>
 
 <ul>
 <li>in the <code>send_notification</code> action we are leveraging the power of the <a href="https://github.com/jpoz/APNS">APNS gem</a> to send the notification to the device by passing in a token from the view;</li>
-<li>finally, with the initial <code>http_basic_authenticate_with</code> method, we are using some basic authentication to make unobtrusive eyes stay away from our service.</li>
+<li>with the initial <code>http_basic_authenticate_with</code> method, we are using some basic authentication to make unobtrusive eyes stay away from our service.</li>
 </ul>
 
 
@@ -311,7 +311,7 @@ Open your Gemfile and add the following line at the end of the file:</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>We iterate thru the devices and list them in a simple table. On the right of each device we define a link - <em>Send notification</em> -  that will let us send the push notification to the selected device. The APNS gem supports sending a single notification to multiple devices at once by passing an array of tokens to Apple&#8217;s servers, but ain&#8217;t going to cover this here since it&#8217;s out of scope for this demo.</p>
+<p>We iterate thru the devices and list them in a simple table. On the right of each device we define a link - <em>Send notification</em> -  that will let us send the push notification to the selected device. The APNS gem supports sending a single notification to multiple devices at once by passing an array of tokens to Apple&#8217;s servers, but we ain&#8217;t going to cover this here since it&#8217;s out of scope for this demo.</p>
 
 <p>If you now run your server (<code>rails s</code>) and visit from your browser the following URL <code>http://localhost:3000/register_device/any_token</code> you should be able to register devices by passing in a string of characters (or numbers by the way). When you visit your root path <code>http://localhost:3000</code> you should then see a list of them.</p>
 
@@ -482,7 +482,7 @@ Open your Gemfile and add the following line at the end of the file:</p>
 
 <p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/xcode_1.jpg"></p>
 
-<p>In your <code>.m</code> file, add at the top the following lines:</p>
+<p>In your AppDelegate <code>.m</code> file, add at the top the following lines:</p>
 
 <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -638,7 +638,7 @@ Open your Gemfile and add the following line at the end of the file:</p>
 
 <p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/notification.jpg"></p>
 
-<p>So this was a pretty long run, btu we&#8217;ve covered quite some stuff. This is just a basic intro (but fully functional) of how to build an APNS server. The APNS gem of course will let you send notifications in batch to multiple devices at once. Just read the documentation. Congratulations, you&#8217;ve just build your own push notification service!</p>
+<p>So this was a pretty long run, but we&#8217;ve covered quite some stuff. This is just a basic intro (though fully functional) of how to build an APNS server. The APNS gem of course will let you send notifications in batch to multiple devices at once. Just read the documentation. Congratulations, you&#8217;ve just built your own push notification service!</p>
 
 <p>The whole code can be found on GitHub:</p>
 
