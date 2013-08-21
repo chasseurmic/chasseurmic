@@ -4,7 +4,7 @@
   <title><![CDATA[Cocoa Hunter]]></title>
   <link href="http://chasseurmic.github.com/chasseurmic/atom.xml" rel="self"/>
   <link href="http://chasseurmic.github.com/chasseurmic/"/>
-  <updated>2013-08-21T18:25:51+02:00</updated>
+  <updated>2013-08-21T19:38:32+02:00</updated>
   <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
@@ -233,7 +233,7 @@ Open your Gemfile and add the following line at the end of the file:</p>
 
 <h3>Yo, get those certificates!</h3>
 
-<p>Whenever you need to generate a digital certificate, you need to provide a Certificate Signing Request (CSR). When you create the CSR, a new private key is generated and inserted into your keychain. You then need to upload the CSR to a certificate authority (in this case to Apple&#8217;s iOS Developer Portal), which will then generate the certificate that you&#8217;re then going to use to create the .pem file to use in your Rails backend. Seems pretty complex&#8230; and it is! Let&#8217;s break down things a little and proceed step by step.</p>
+<p>Whenever you need to generate a digital certificate, you need to provide a Certificate Signing Request (CSR). When you create the CSR, a new private key is generated and inserted into your keychain. You then need to upload the CSR to a certificate authority (in this case to Apple&#8217;s iOS Developer Portal), which will generate the certificate that you&#8217;re then going to use to create the .pem file to use in your Rails backend. Seems pretty complex&#8230; and it is! Let&#8217;s break down things a little and proceed step by step.</p>
 
 <p>Open Keychain Access on your Mac (you can find it in <code>/Applications/Utilities</code>) and choose the menu option <code>Request a Certificate from a Certificate Authority...</code>.</p>
 
@@ -243,11 +243,7 @@ Open your Gemfile and add the following line at the end of the file:</p>
 
 <p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/keychain_2.jpg"></p>
 
-<p>Now inside Keychain, in the <em>Keys</em> section you should see that a new private key has appeared. Right click it and export it as a <code>.p12</code> file (enter the passphrase when prompted).</p>
-
-<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/keychain_3.jpg"></p>
-
-<p>Now go at <a href="https://developer.apple.com/">developer.apple.com</a> and sign into your developer account.</p>
+<p>Now inside Keychain, in the <em>Keys</em> section you should see that a new private key has appeared. Now go at <a href="https://developer.apple.com/">developer.apple.com</a> and sign into your developer account.</p>
 
 <p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/adc_1.jpg"></p>
 
