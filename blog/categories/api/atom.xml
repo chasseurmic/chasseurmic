@@ -4,7 +4,7 @@
   <title><![CDATA[Category: api | Cocoa Hunter]]></title>
   <link href="http://chasseurmic.github.com/chasseurmic/blog/categories/api/atom.xml" rel="self"/>
   <link href="http://chasseurmic.github.com/chasseurmic/"/>
-  <updated>2013-06-03T18:39:21+02:00</updated>
+  <updated>2013-08-21T18:22:25+02:00</updated>
   <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
@@ -44,7 +44,7 @@ rake db:migrate
 
 <p>We have now everything we need to manage users. The <code>rails g devise User</code> has scaffolded a devise model called User. Let's open it (/app/models/user.rb) and modify it by adding <code>:token_authenticatable</code> in the <code>devise</code> section of the file. This will let the user authenticate thru a token that our backend will generate and that mobile client will use when querying the web application.</p>
 
-<p>Now let's make some changed in the config (/config/initializers/devise.rb):</p>
+<p>Now let's make some changes in the config (/config/initializers/devise.rb):</p>
 
 <p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

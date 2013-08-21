@@ -19,11 +19,11 @@
 
   
   <link rel="canonical" href="http://chasseurmic.github.com/chasseurmic/blog/2012/12/28/api-for-ios-part-2/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -49,7 +49,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Cocoa Hunter</a></h1>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
   
     <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
   
@@ -69,8 +69,8 @@
 </form>
   
 <ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
 </ul>
 
 </nav>
@@ -413,7 +413,7 @@ In <em>MyTableViewController.h</em> we need to declare an Array where we will st
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/api/'>API</a>, <a class='category' href='/blog/categories/rest/'>REST</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>, <a class='category' href='/blog/categories/backend/'>backend</a>, <a class='category' href='/blog/categories/ios/'>iOS</a>, <a class='category' href='/blog/categories/webservice/'>webservice</a>
+    <a class='category' href='/cocoahunter/blog/categories/api/'>API</a>, <a class='category' href='/cocoahunter/blog/categories/rest/'>REST</a>, <a class='category' href='/cocoahunter/blog/categories/rails/'>Rails</a>, <a class='category' href='/cocoahunter/blog/categories/backend/'>backend</a>, <a class='category' href='/cocoahunter/blog/categories/ios/'>iOS</a>, <a class='category' href='/cocoahunter/blog/categories/webservice/'>webservice</a>
   
 </span>
 
@@ -435,10 +435,10 @@ In <em>MyTableViewController.h</em> we need to declare an Array where we will st
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/12/17/api-for-ios-app/" title="Previous Post: API for iOS app - part 1">&laquo; API for iOS app - part 1</a>
+        <a class="basic-alignment left" href="/cocoahunter/blog/2012/12/17/api-for-ios-app/" title="Previous Post: API for iOS app - part 1">&laquo; API for iOS app - part 1</a>
       
       
-        <a class="basic-alignment right" href="/blog/2013/01/05/sinatra-takes-the-stage/" title="Next Post: Sinatra takes the stage, Padrino the cannoli.">Sinatra takes the stage, Padrino the cannoli. &raquo;</a>
+        <a class="basic-alignment right" href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/" title="Next Post: Sinatra takes the stage, Padrino the cannoli.">Sinatra takes the stage, Padrino the cannoli. &raquo;</a>
       
     </p>
   </footer>
@@ -459,26 +459,55 @@ In <em>MyTableViewController.h</em> we need to declare an Array where we will st
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+        <a href="/cocoahunter/blog/2013/08/18/apns-pushing-the-limits-of-your-notifications/">APNS. Pushing the limits of your notifications.</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
       </li>
     
   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/chasseurmic">@chasseurmic</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'chasseurmic',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/cocoahunter/javascripts/github.js" type="text/javascript"> </script>
 </section>
 
 
@@ -492,7 +521,7 @@ In <em>MyTableViewController.h</em> we need to declare an Array where we will st
       getTwitterFeed("chasseurmic", 5, false);
     });
   </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
   
     <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
   

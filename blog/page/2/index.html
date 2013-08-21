@@ -9,7 +9,7 @@
   <meta name="author" content="Michelangelo Chasseur">
 
   
-  <meta name="description" content="In our last post we saw how to configure a Rails environment, create and locally serve a very basic API. You should now be able insert and persist &hellip;">
+  <meta name="description" content="I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,11 +19,11 @@
 
   
   <link rel="canonical" href="http://chasseurmic.github.com/chasseurmic/blog/page/2/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/cocoahunter/favicon.png" rel="icon">
+  <link href="/cocoahunter/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/cocoahunter/javascripts/modernizr-2.0.js"></script>
+  <script src="/cocoahunter/javascripts/ender.js"></script>
+  <script src="/cocoahunter/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Cocoa Hunter" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -49,7 +49,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Cocoa Hunter</a></h1>
+  <h1><a href="/cocoahunter/">Cocoa Hunter</a></h1>
   
     <h2>Cocoa (mostly touch) tips &amp; tricks</h2>
   
@@ -69,8 +69,8 @@
 </form>
   
 <ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/cocoahunter/">Blog</a></li>
+  <li><a href="/cocoahunter/blog/archives">Archives</a></li>
 </ul>
 
 </nav>
@@ -84,7 +84,83 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/12/28/api-for-ios-part-2/">API for iOS - Part 2</a></h1>
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra Takes the Stage, Padrino the Cannoli.</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-05T21:43:00+01:00" pubdate data-updated="true">Jan 5<span>th</span>, 2013</time>
+        
+         | <a href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I’ve been recently hard at work on strenghtening my skills on backend development for iOS apps. As I said in one of my previous posts almost every mobile app nowadays requires some sort of remote database to retrieve and sync data. Often times though, what we really need is some sort of very basic API. Ruby on Rails certainly can deliver what it promises, it’s a powerhorse, but it can also become cumbersome for some simple tasks. What I’m gonna briefly review today are <a href="http://www.sinatrarb.com/">Sinatra</a> and <a href="http://www.padrinorb.com/">Padrino</a>, two somehow lightweight-ish alternatives to Rails.</p>
+
+<h2>Easy singing with Sinatra!</h2>
+
+<p>Sinatra is technically a Ruby DSL, a <em>domain specific language</em>. It’s not a framework, it’s kind of a <em>specific language layer</em> – on top of Ruby and Thin – that lets you implement in an easy and fast way a working web server.</p>
+
+<p>Let’s get straight to an example. The following code sets up a server and responds with a simple <em>&#8220;Hello world!&#8221;</em> to each request made to the base url. Create a new <em>.rb</em> file and copy the following snippet in it:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+</span><span class='line'><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="s2">&quot;Hello world!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then run it from the terminal with <code>ruby your_file_name.rb</code>. You should see something similar to:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>> ruby sinatra.rb 
+</span><span class='line'>== Sinatra/1.3.3 has taken the stage on 4567 for development with backup from Thin
+</span><span class='line'>>> Thin web server (v1.3.1 codename Triple Espresso)
+</span><span class='line'>>> Maximum connections set to 1024
+</span><span class='line'>>> Listening on 0.0.0.0:4567, CTRL+C to stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can visit <em>localhost:4567</em> and, voilà, you webpage is served!</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/cocoahunter/blog/2013/01/05/sinatra-takes-the-stage/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/">API for iOS - Part 2</a></h1>
     
     
       <p class="meta">
@@ -102,7 +178,7 @@
 
 <time datetime="2012-12-28T12:57:00+01:00" pubdate data-updated="true">Dec 28<span>th</span>, 2012</time>
         
-         | <a href="/blog/2012/12/28/api-for-ios-part-2/#disqus_thread">Comments</a>
+         | <a href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/#disqus_thread">Comments</a>
         
       </p>
     
@@ -162,7 +238,7 @@
   
   
     <footer>
-      <a rel="full-article" href="/blog/2012/12/28/api-for-ios-part-2/">Read on &rarr;</a>
+      <a rel="full-article" href="/cocoahunter/blog/2012/12/28/api-for-ios-part-2/">Read on &rarr;</a>
     </footer>
   
 
@@ -174,7 +250,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/12/17/api-for-ios-app/">API for iOS App - Part 1</a></h1>
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2012/12/17/api-for-ios-app/">API for iOS App - Part 1</a></h1>
     
     
       <p class="meta">
@@ -192,7 +268,7 @@
 
 <time datetime="2012-12-17T20:23:00+01:00" pubdate data-updated="true">Dec 17<span>th</span>, 2012</time>
         
-         | <a href="/blog/2012/12/17/api-for-ios-app/#disqus_thread">Comments</a>
+         | <a href="/cocoahunter/blog/2012/12/17/api-for-ios-app/#disqus_thread">Comments</a>
         
       </p>
     
@@ -222,7 +298,7 @@
   
   
     <footer>
-      <a rel="full-article" href="/blog/2012/12/17/api-for-ios-app/">Read on &rarr;</a>
+      <a rel="full-article" href="/cocoahunter/blog/2012/12/17/api-for-ios-app/">Read on &rarr;</a>
     </footer>
   
 
@@ -234,7 +310,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/12/16/hello-world/">Hello World!</a></h1>
+      <h1 class="entry-title"><a href="/cocoahunter/blog/2012/12/16/hello-world/">Hello World!</a></h1>
     
     
       <p class="meta">
@@ -252,7 +328,7 @@
 
 <time datetime="2012-12-16T21:33:00+01:00" pubdate data-updated="true">Dec 16<span>th</span>, 2012</time>
         
-         | <a href="/blog/2012/12/16/hello-world/#disqus_thread">Comments</a>
+         | <a href="/cocoahunter/blog/2012/12/16/hello-world/#disqus_thread">Comments</a>
         
       </p>
     
@@ -281,9 +357,9 @@
   
   <div class="pagination">
     
-    <a href="/blog/archives">Blog Archives</a>
+    <a href="/cocoahunter/blog/archives">Blog Archives</a>
     
-    <a class="next" href="/">Newer &rarr;</a>
+    <a class="next" href="/cocoahunter/">Newer &rarr;</a>
     
   </div>
 </div>
@@ -320,23 +396,23 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
+        <a href="/cocoahunter/blog/2013/08/18/apns-pushing-the-limits-of-your-notifications/">APNS. Pushing the limits of your notifications.</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
+        <a href="/cocoahunter/blog/2013/05/20/opengl-and-glkit-intro-and-basic-tutorial/">OpenGL and GLKit. Intro and basic tutorial - part 1 of 2</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
+        <a href="/cocoahunter/blog/2013/02/13/restful-api-authentication/">RESTful API authentication</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
+        <a href="/cocoahunter/blog/2013/01/16/rubymotion/">RubyMotion. Share Ruby love with your apps.</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/01/05/sinatra-takes-the-stage/">Sinatra takes the stage, Padrino the cannoli.</a>
+        <a href="/cocoahunter/blog/2013/01/10/basic-interface-styling-in-ios/">Basic Interface Styling in iOS</a>
       </li>
     
   </ul>
@@ -352,7 +428,7 @@
       getTwitterFeed("chasseurmic", 5, false);
     });
   </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  <script src="/cocoahunter/javascripts/twitter.js" type="text/javascript"> </script>
   
     <a href="http://twitter.com/chasseurmic" class="twitter-follow-button" data-show-count="false">Follow @chasseurmic</a>
   

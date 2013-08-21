@@ -4,7 +4,7 @@
   <title><![CDATA[Cocoa Hunter]]></title>
   <link href="http://chasseurmic.github.com/chasseurmic/atom.xml" rel="self"/>
   <link href="http://chasseurmic.github.com/chasseurmic/"/>
-  <updated>2013-06-03T18:39:21+02:00</updated>
+  <updated>2013-08-21T18:22:25+02:00</updated>
   <id>http://chasseurmic.github.com/chasseurmic/</id>
   <author>
     <name><![CDATA[Michelangelo Chasseur]]></name>
@@ -12,6 +12,559 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[APNS. Pushing the limits of your notifications.]]></title>
+    <link href="http://chasseurmic.github.com/chasseurmic/blog/2013/08/18/apns-pushing-the-limits-of-your-notifications/"/>
+    <updated>2013-08-18T22:04:00+02:00</updated>
+    <id>http://chasseurmic.github.com/chasseurmic/blog/2013/08/18/apns-pushing-the-limits-of-your-notifications</id>
+    <content type="html"><![CDATA[<p>Push notifications (APNS) are one of those pesky subjects that make developers freak out. Today there are of course different online tools that can help your APNS setup, one of them - as an exmaple - being <a href="http://urbanairship.com/">UrbanAirship</a>. The downsides of using third party services are, as always, maintenance costs as your app scales in volume, changing APIs, being subject to someone else&#8217;s TOCs and the lack of control of what&#8217;s really going on under the hood.</p>
+
+<p>What we&#8217;re going to do here, is leveraging open-source libraries to show a full featured solution to:</p>
+
+<ul>
+<li>build a Ruby on Rails APNS server from scratch;</li>
+<li>deploy the service to Heroku;</li>
+<li>integrate an iOS application and send our first push notification.</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>Intro</h2>
+
+<h3>Anatomy of a push notification</h3>
+
+<p>To get a good overview of how APNS works, you should definetely take a look at the <a href="https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/ApplePushService.html#//apple_ref/doc/uid/TP40008194-CH100-SW9">official documentation</a>. A brief exmaple would go like that:</p>
+
+<ul>
+<li>an user accepts to receive push notifications from an app;</li>
+<li>the app register for push notifications to Apple servers;</li>
+<li>the app gets a unique token from the servers</li>
+<li>the app calls the web service that will let admin push notifications to registered devices</li>
+<li>the server storess the device&#8217;s token</li>
+<li>the server starts a push notifications sending the payload to Apple servers together with the token</li>
+<li>Apple servers send push notification back to the app</li>
+</ul>
+
+
+<h3>Requirements</h3>
+
+<p>The following tutorial assumes you are using the following stack: Xcode 4.6.3, iOS 6.1+, Ruby 2.0.0-p195, Rails 4 (which are the newest versions of said technologies at the moment of this writing). Good chances though are that everything will work with other versions of those tools / languages.</p>
+
+<p>And now, let&#8217;s get coding!</p>
+
+<h2>Setting up the server</h2>
+
+<h3>Building the Rails app</h3>
+
+<p>So, let&#8217;s start from the server side of things. Open the Terminal, navigate to the directory you want your application to reside in, and type <code>rails new APNS</code>.
+Open your Gemfile and add the following line at the end of the file:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;apns&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&#8217;s scaffold a controller. From the Terminal run <code>rails g controller home index</code>. And in your <code>config/routes.rb</code>let&#8217;s default your root route to the index action/view of the controller you just generated. Your routing file should look like this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">APNS</span><span class="p">:</span><span class="ss">:Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">get</span> <span class="s2">&quot;home/index&quot;</span>
+</span><span class='line'>  <span class="n">root</span> <span class="s1">&#39;home#index&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&#8217;s now create a model for the devices. We&#8217;re just going to persist to the database the unique token of each device (the one basically that will be sent to Apple servers in order to handle notifications). From the Terminal run <code>rails g model Device token</code>. Let&#8217;s also verify that tokens are indeed unique by enforcing a model validation inside your model file.</p>
+
+<p>Your <code>app/model/device.rb</code> should now look like this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># == Schema Information</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># Table name: devices</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1">#  id         :integer          not null, primary key</span>
+</span><span class='line'><span class="c1">#  token      :string(255)</span>
+</span><span class='line'><span class="c1">#  created_at :datetime</span>
+</span><span class='line'><span class="c1">#  updated_at :datetime</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Device</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">validates_uniqueness_of</span> <span class="ss">:token</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Migrate your database with <code>rake db:migrate</code>. We&#8217;re now ready to implement a very simple API that we&#8217;ll be using from our client to register the device&#8217;s token.</p>
+
+<p>Inside your <code>routes.rb</code> file define two new routes:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/register_device/:token&#39;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="s1">&#39;home#register_device_with_token&#39;</span>
+</span><span class='line'><span class="n">get</span> <span class="s1">&#39;/send_notification/:token&#39;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="s1">&#39;home#send_notification&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Modify your <code>home_controller.rb</code> accordingly.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">HomeController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">http_basic_authenticate_with</span> <span class="nb">name</span><span class="p">:</span> <span class="s2">&quot;basic_auth_username&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;easy_password&quot;</span> <span class="c1">#, except: :index</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="vi">@devices</span> <span class="o">=</span> <span class="no">Device</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">register_device_with_token</span>
+</span><span class='line'>    <span class="no">Device</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">:token</span> <span class="o">=&gt;</span> <span class="n">params</span><span class="o">[</span><span class="ss">:token</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">redirect_to</span> <span class="n">home_index_path</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">send_notification</span>
+</span><span class='line'>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="s2">&quot;Device token registrato: &quot;</span> <span class="o">+</span> <span class="n">params</span><span class="o">[</span><span class="ss">:token</span><span class="o">].</span><span class="n">to_s</span>
+</span><span class='line'>    <span class="no">APNS</span><span class="o">.</span><span class="n">send_notification</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:token</span><span class="o">].</span><span class="n">to_s</span><span class="p">,</span> <span class="s1">&#39;Hello from Rails app!&#39;</span> <span class="p">)</span>
+</span><span class='line'>    <span class="n">redirect_to</span> <span class="n">home_index_path</span><span class="p">,</span> <span class="ss">:notice</span> <span class="o">=&gt;</span> <span class="s2">&quot;Notification sent to device </span><span class="si">#{</span><span class="n">params</span><span class="o">[</span><span class="ss">:token</span><span class="o">]</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What are we doing here?</p>
+
+<ul>
+<li>in the <code>index</code> action we are retrieving from the database an array of all the devices currently registered on the server app. Later on we are going to modify the corresponding view in order to visualize those devices. Of course this is just for testing purposes, you wouldn&#8217;t want to do such a thing in your production app!</li>
+<li>in the <code>register_device_with_token</code> method we&#8217;re just creating a new device with the token passed in by the mobile device as a parameter in the URL string. To take a peak at what&#8217;s coming, from the iOS device will be making up the URL like so:</li>
+</ul>
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSURL</span> <span class="o">*</span><span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@%@%@&quot;</span><span class="p">,</span> <span class="n">BASE_URL</span><span class="p">,</span> <span class="s">@&quot;/register_device/&quot;</span><span class="p">,</span> <span class="n">deviceTokenAsString</span><span class="p">]];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>in the <code>send_notification</code> action we are leveraging the power of the <a href="https://github.com/jpoz/APNS">APNS gem</a> to send the notification to the device by passing in a token from the view;</li>
+<li>finally, with the initial <code>http_basic_authenticate_with</code> method, we are using some basic authentication to make unobtrusive eyes stay away from our service.</li>
+</ul>
+
+
+<p>And finally, here&#8217;s our <code>/app/views/home/index.html.erb</code> view:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="x">&lt;h1&gt;Listing devices&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="x">&lt;table&gt;</span>
+</span><span class='line'><span class="x">  &lt;tr&gt;</span>
+</span><span class='line'><span class="x">    &lt;th&gt;Token&lt;/th&gt;</span>
+</span><span class='line'><span class="x">    &lt;th&gt;&lt;/th&gt;</span>
+</span><span class='line'><span class="x">    &lt;th&gt;&lt;/th&gt;</span>
+</span><span class='line'><span class="x">    &lt;th&gt;&lt;/th&gt;</span>
+</span><span class='line'><span class="x">  &lt;/tr&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;%</span> <span class="vi">@devices</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">device</span><span class="o">|</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;tr&gt;</span>
+</span><span class='line'><span class="x">    &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">device</span><span class="o">.</span><span class="n">token</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span>
+</span><span class='line'><span class="x">    &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s1">&#39;Send notification&#39;</span><span class="p">,</span>  <span class="ss">controller</span><span class="p">:</span> <span class="s2">&quot;home&quot;</span><span class="p">,</span> <span class="ss">action</span><span class="p">:</span> <span class="s2">&quot;send_notification&quot;</span><span class="p">,</span> <span class="ss">token</span><span class="p">:</span> <span class="n">device</span><span class="o">.</span><span class="n">token</span><span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span>
+</span><span class='line'><span class="x">  &lt;/tr&gt;</span>
+</span><span class='line'><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">&lt;/table&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We iterate thru the devices and list them in a simple table. On the right of each device we define a link - <em>Send notification</em> -  that will let us send the push notification to the selected device. The APNS gem supports sending a single notification to multiple devices at once by passing an array of tokens to Apple&#8217;s servers, but ain&#8217;t going to cover this here since it&#8217;s out of scope for this demo.</p>
+
+<p>If you now run your server (<code>rails s</code>) and visit from your browser the following URL <code>http://localhost:3000/register_device/any_token</code> you should be able to register devices by passing in a string of characters (or numbers by the way). When you visit your root path <code>http://localhost:3000</code> you should then see a list of them.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/rails_1.jpg"></p>
+
+<p>Now that we got our feet wet and our first API calls are working, let&#8217;s get onto the boring stuff&#8230;</p>
+
+<h3>Yo, get those certificates!</h3>
+
+<p>Whenever you need to generate a digital certificate, you need to provide a Certificate Signing Request (CSR). When you create the CSR, a new private key is generated and inserted into your keychain. You then need to upload the CSR to a certificate authority (in this case to Apple&#8217;s iOS Developer Portal), which will then generate the certificate that you&#8217;re then going to use to create the .pem file to use in your Rails backend. Seems pretty complex&#8230; and it is! Let&#8217;s break down things a little and proceed step by step.</p>
+
+<p>Open Keychain Access on your Mac (you can find it in <code>/Applications/Utilities</code>) and choose the menu option <code>Request a Certificate from a Certificate Authority...</code>.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/keychain_1.jpg"></p>
+
+<p>Fill in the email address and save the CSR to disk.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/keychain_2.jpg"></p>
+
+<p>Now inside Keychain, in the <em>Keys</em> section you should see that a new private key has appeared. Right click it and export it as a <code>.p12</code> file (enter the passphrase when prompted).</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/keychain_3.jpg"></p>
+
+<p>Now go at <a href="https://developer.apple.com/">developer.apple.com</a> and sign into your developer account.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/adc_1.jpg"></p>
+
+<p>Once logged into the Dev Center, create a new AppID for the app that will be accepting push notifications. Enter the description, bundle ID (we&#8217;re going to use <code>re.touchwa.cocoahunterapnstest</code> for our test app) and check the <em>Push Notifications</em> option in the App Services section at the bottom. Complete the registration of the new AppID by confirming and submitting the data.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/adc_2.jpg"></p>
+
+<p>Now we are all set up and ready to create a new certificate. Go into the <code>Certificates</code> section and click on the top right + button to create a new one.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/adc_3.jpg"></p>
+
+<p>Since development and production environments require different types of certificates, for our test purposes we are going to use the sandboxed environment, but for production apps you should of course choose the production ceertificate.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/adc_4.jpg"></p>
+
+<p>Next step is associating the certificate you&#8217;re generating with the AppID you created in the previous step. You then should be asked to upload the CSR request you generated in Keychain.app (by default they are named <code>CertificateSigningRequest.certSigningRequest</code>). Choose the file and upload it, then click <code>Generate</code>. Once the certificated is ready, click on download. Double click on the <code>.cer</code> file to import it into the Keychain. Almost there!</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/adc_5.jpg"></p>
+
+<p>We now need to convert the certificate in what is called a PEM (Privacy Enhanced Mail) file (if you really want ot dive deeper into the subject, a good starting point would be <a href="http://en.wikipedia.org/wiki/X.509">this Wikipedia article</a>). With the <code>aps_development.cer</code> in the keychain do the following:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/keychain_4.jpg"></p>
+
+<ul>
+<li>Launch Keychain Access and from the login keychain, filter by the Certificates category. You will see an expandable option called Apple Development Push Services;</li>
+<li>Right click on Apple Development Push Services > Export Apple Development Push Services &#8230; Save the file again as <code>APNSCocoaHunterTest.p12</code> somewhere you can access it. There is no need to enter a password.</li>
+<li>Finally from the Termianal run the following:</li>
+</ul>
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>openssl pkcs12 -in APNSCocoaHunterTest.p12 -out APNSCocoaHunter.pem -nodes -clcerts
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To test that the certificate you created is actually working, you should be able to run the following command in the Terminal:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>openssl s_client -connect gateway.sandbox.push.apple.com:2195 -cert APNSCocoaHunter.pem
+</span><span class='line'>Enter pass phrase <span class="k">for </span>APNSCocoaHunter.pem:
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Leave the password empty and press Enter, you should see some text scrolling, then if you press Enter again at the prompt the server should disconnect. That&#8217;s a good sign that things are working correctly!</p>
+
+<p>If you&#8217;re still with me, it&#8217;s now time to wrap things up with the server side of things! Let&#8217;s go configure the APNS gem.</p>
+
+<h3>Configuring the APNS gem</h3>
+
+<p>Back to the Rails app, copy the <code>.pem</code> file (APNSCocoaHunter.pem) into your <code>lib</code> folder (actually you can put it wherever you want). In your <code>config/application.rb</code> file paste the following code:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">APNS</span><span class="o">.</span><span class="n">pem</span>  <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="no">Rails</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;lib&#39;</span><span class="p">,</span><span class="s1">&#39;APNSCocoaHunter.pem&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># this is the file you just created</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">APNS</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">2195</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you see the <code>APNS.pem</code> snippet is referencing the file in the &#8216;lib&#8217; folder. Should you place your file anywhere else, be sure to input the right path so that the gem will be able to find it. Let&#8217;s now deploy our app to Heroku so that we can test it on real devices!</p>
+
+<h3>Deploying to Heroku</h3>
+
+<p>First of all, let&#8217;s make sure that in our Gemfile we&#8217;re actually using PostgreSQL as a DB in production instead of SQLite (which of course is handy for development purposes, but nothing more).</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;sqlite3&#39;</span><span class="p">,</span> <span class="ss">group</span><span class="p">:</span> <span class="ss">:development</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;pg&#39;</span><span class="p">,</span> <span class="ss">group</span><span class="p">:</span> <span class="ss">:production</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I assume you already have an Heroku account and you have correctly setup your CLI. For further instructions and an introductory tutorial on this topic you can head to <a href="https://devcenter.heroku.com/articles/heroku-command">Heroku&#8217;s website</a>.</p>
+
+<p>To actually deploy a Rails app to Heroku (or any other suported app for that matter), you need to first setup a git repo. We should have done this from the beginning, but we actually haven&#8217;t written too much code and - by the way - this is just a tutorial. Anyway, in a production app it&#8217;s always best to commit early and commit often. That said, let&#8217;s init our repo. From the Terminal run (from inside your Rails app folder):</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git init <span class="o">&amp;&amp;</span> git add . <span class="o">&amp;&amp;</span> git commit -m <span class="s2">&quot;Inital commit&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can create you Heorku app by running (from the same folder where you created your git repo):</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>heroku create desired-app-name
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#8230;then:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git push heroku master
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once the app is uploaded and the slug compiled, migrate your DB:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>heroku run rake db:migrate
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now your backend should be ready to go. Run <code>heroku open</code> and your default browser should be pointed to the newly created web app. Of course you will be prompted with a basic auth HTTP form (since you requested it in <code>home_controller.rb</code>). Fill in the credentials and, boom!, you&#8217;re good to go. Now let&#8217;s move on to the mobile side of things.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/basic_auth.png"></p>
+
+<h2>Setting up the mobile client</h2>
+
+<h3>Generate the provisioning profile</h3>
+
+<p>First thing first: generate the provisionig profile for your app. Head over to the iOS Dev Center and click on Provisioning Profile in the sidebar. Let&#8217;s make a development profile for the time being. Click on the + button on the upper right of the screen:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/provisioning_1.jpg"></p>
+
+<p>Choose the <code>iOS App Development</code> profile.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/provisioning_2.jpg"></p>
+
+<p>Select the app ID you previously created to generate the certificate:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/provisioning_3.jpg"></p>
+
+<p>Select the certificate:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/provisioning_4.jpg"></p>
+
+<p>Select the development devices you wish to install your app on:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/provisioning_5.jpg"></p>
+
+<p>Name the profile and generate:</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/provisioning_6.jpg"></p>
+
+<p>Finally, download it and add the provisioning profile to Xcode by double-clicking it or dragging it onto the Xcode icon.</p>
+
+<h3>Create the project</h3>
+
+<p>Now open Xcode and create a new empty project. We are not going to make anything in the UI and we will dump all the code we need in the AppDelegate, so you can use whichever template you want to. Note that you should choose a Product Name and Company Identifier that correspond to the app ID that you earlier created in the Provisioning Portal.</p>
+
+<h3>The actual code</h3>
+
+<p>Download and import into your project the following two files, <code>NSData+Base64.h</code> and <code>NSData+Base64.m</code>, from <a href="https://github.com/l4u/NSData-Base64">this Github repo</a>. We are going to use this NSData category for the &#8216;stringification&#8217; of our token later on. If you created your project as ARC-enabled (as I expect you did), you need to add the flag <code>-fno-objc-arc</code> to that file. Adding the flag is just a matter of going in Targets > Build Phases > Compile Sources. You have to double click on the right column of the row under Compiler Flags.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/xcode_1.jpg"></p>
+
+<p>In your <code>.m</code> file, add at the top the following lines:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#import &quot;NSData+Base64.h&quot;</span>
+</span><span class='line'><span class="cp">#define BASE_URL @&quot;http:</span><span class="c1">//your-app-address.herokuapp.com/&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Of course in the BASE_URL <code>#define</code> you should substitute your Heroku URL.</p>
+
+<p>Now, inside you <code>-(BOOL)application:didFinishLaunchingWithOptions:</code> method, add the following call to start the process for registering the device to our backend service:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[[</span><span class="n">UIApplication</span> <span class="n">sharedApplication</span><span class="p">]</span> <span class="nl">registerForRemoteNotificationTypes:</span>
+</span><span class='line'> <span class="p">(</span><span class="n">UIRemoteNotificationTypeBadge</span> <span class="o">|</span> <span class="n">UIRemoteNotificationTypeSound</span> <span class="o">|</span> <span class="n">UIRemoteNotificationTypeAlert</span><span class="p">)];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Everything else is happening in the following method (which is basically a callback that returns the device token as raw data bytes): <code>-(void)application:didRegisterForRemoteNotificationsWithDeviceToken:</code>.</p>
+
+<p>So, here&#8217;s the code:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#pragma mark - Push Notifications</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">application:</span><span class="p">(</span><span class="n">UIApplication</span><span class="o">*</span><span class="p">)</span><span class="nv">application</span> <span class="nf">didRegisterForRemoteNotificationsWithDeviceToken:</span><span class="p">(</span><span class="n">NSData</span><span class="o">*</span><span class="p">)</span><span class="nv">deviceToken</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Convert the binary data token into an NSString (see below for the implementation of this function)</span>
+</span><span class='line'>    <span class="n">NSString</span> <span class="o">*</span><span class="n">deviceTokenAsString</span> <span class="o">=</span> <span class="n">stringFromDeviceTokenData</span><span class="p">(</span><span class="n">deviceToken</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Show the device token obtained from apple to the log</span>
+</span><span class='line'>    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;deviceToken: %@&quot;</span><span class="p">,</span> <span class="n">deviceTokenAsString</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">NSURL</span> <span class="o">*</span><span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@%@%@&quot;</span><span class="p">,</span> <span class="n">BASE_URL</span><span class="p">,</span> <span class="s">@&quot;/register_device/&quot;</span><span class="p">,</span> <span class="n">deviceTokenAsString</span><span class="p">]];</span>
+</span><span class='line'>    <span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLRequest</span> <span class="nl">requestWithURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">NSURLConnection</span> <span class="o">*</span><span class="n">connection</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLConnection</span> <span class="nl">connectionWithRequest:</span><span class="n">request</span> <span class="nl">delegate:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">connection</span> <span class="n">start</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// NSURLConnection Delegates</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">connection:</span><span class="p">(</span><span class="n">NSURLConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span> <span class="nf">didReceiveAuthenticationChallenge:</span><span class="p">(</span><span class="n">NSURLAuthenticationChallenge</span> <span class="o">*</span><span class="p">)</span><span class="nv">challenge</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">([</span><span class="n">challenge</span> <span class="n">previousFailureCount</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;received authentication challenge&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">NSURLCredential</span> <span class="o">*</span><span class="n">newCredential</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLCredential</span> <span class="nl">credentialWithUser:</span><span class="p">[</span><span class="n">self</span> <span class="n">username</span><span class="p">]</span>
+</span><span class='line'>                                                                    <span class="nl">password:</span><span class="p">[</span><span class="n">self</span> <span class="n">password</span><span class="p">]</span>
+</span><span class='line'>                                                                 <span class="nl">persistence:</span><span class="n">NSURLCredentialPersistenceForSession</span><span class="p">];</span>
+</span><span class='line'>        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;credential created&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">[[</span><span class="n">challenge</span> <span class="n">sender</span><span class="p">]</span> <span class="nl">useCredential:</span><span class="n">newCredential</span> <span class="nl">forAuthenticationChallenge:</span><span class="n">challenge</span><span class="p">];</span>
+</span><span class='line'>        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;responded to authentication challenge&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;previous authentication failure&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">application:</span><span class="p">(</span><span class="n">UIApplication</span><span class="o">*</span><span class="p">)</span><span class="nv">application</span> <span class="nf">didFailToRegisterForRemoteNotificationsWithError:</span><span class="p">(</span><span class="n">NSError</span><span class="o">*</span><span class="p">)</span><span class="nv">error</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;Failed to get token, error: %@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">username</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s">@&quot;basic_auth_username&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">password</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s">@&quot;easy_password&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">NSString</span><span class="o">*</span> <span class="nf">stringFromDeviceTokenData</span><span class="p">(</span><span class="n">NSData</span> <span class="o">*</span><span class="n">deviceToken</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">deviceToken</span> <span class="n">bytes</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">NSMutableString</span><span class="o">*</span> <span class="n">token</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableString</span> <span class="n">string</span><span class="p">];</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">[</span><span class="n">deviceToken</span> <span class="n">length</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="p">[</span><span class="n">token</span> <span class="nl">appendFormat:</span><span class="s">@&quot;%02.2hhX&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="p">[</span><span class="n">token</span> <span class="n">copy</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&#8217;s take a look at the code by steps:</p>
+
+<ul>
+<li>first we convert with a C function the token (NSData) we get back from the callback to an NSString that we are going to post to our Rails server;</li>
+<li>then we build the URL and we instantiate a request, and we start the connection by registering the AppDelegate as the NSURLConnection&#8217;s delegate;</li>
+<li>As expected, we should get from our backend an authentication challenge. We&#8217;re taking care of that by instantiating an NSURLCredential and responding to the challenge with the correct username and password.</li>
+</ul>
+
+
+<p>Run your app on an actual device. The screen of course will be blank, but as soon as your app opens, it will try to communicate with the backend and register for push notifications. Now if you open your Rails app beckend, you should see the token listed in the index page!</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/list_token.jpg"></p>
+
+<h2>Sending your first push notification!</h2>
+
+<p>Here comes the moment of truth! Press the &#8216;Send notification&#8217; link to the right of the token. Boom! Your app should receive the push notification as expected.</p>
+
+<p><img src="http://cocoahunter-blog.s3.amazonaws.com/apns-test/notification.jpg"></p>
+
+<p>So this was a pretty long run, btu we&#8217;ve covered quite some stuff. This is just a basic intro (but fully functional) of how to build an APNS server. The APNS gem of course will let you send notifications in batch to multiple devices at once. Just read the documentation. Congratulations, you&#8217;ve just build your own push notification service!</p>
+
+<p>The whole code can be found on GitHub:</p>
+
+<ul>
+<li><a href="https://github.com/chasseurmic/APNS-Basic-Rails-Server">Rails server app</a></li>
+<li><a href="https://github.com/chasseurmic/APNS-Basic-iOS-Client">iOS mobile app</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[OpenGL and GLKit. Intro and basic tutorial - part 1 of 2]]></title>
@@ -102,7 +655,7 @@
 
 <p>We have now everything we need to manage users. The <code>rails g devise User</code> has scaffolded a devise model called User. Let&#8217;s open it (/app/models/user.rb) and modify it by adding <code>:token_authenticatable</code> in the <code>devise</code> section of the file. This will let the user authenticate thru a token that our backend will generate and that mobile client will use when querying the web application.</p>
 
-<p>Now let&#8217;s make some changed in the config (/config/initializers/devise.rb):</p>
+<p>Now let&#8217;s make some changes in the config (/config/initializers/devise.rb):</p>
 
 <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

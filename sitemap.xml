@@ -32,7 +32,7 @@
         <loc>
             http://chasseurmic.github.com/chasseurmic/blog/2013/02/13/restful-api-authentication/
         </loc>
-        <lastmod>2013-02-13T16:48:14+01:00</lastmod>
+        <lastmod>2013-08-18T22:00:54+02:00</lastmod>
     </url>
     <url>
         <loc>
@@ -41,11 +41,17 @@
         <lastmod>2013-06-02T19:14:32+02:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://chasseurmic.github.com/chasseurmic/blog/2013/08/18/apns-pushing-the-limits-of-your-notifications/
+        </loc>
+        <lastmod>2013-08-21T18:21:56+02:00</lastmod>
+    </url>
+    <url>
         <loc>http://chasseurmic.github.com/chasseurmic/blog/archives/</loc>
-        <lastmod>2013-06-02T19:14:32+02:00</lastmod>
+        <lastmod>2013-08-21T18:21:56+02:00</lastmod>
     </url>
     <url>
         <loc>http://chasseurmic.github.com/chasseurmic/</loc>
-        <lastmod>2013-06-02T19:14:32+02:00</lastmod>
+        <lastmod>2013-08-21T18:21:56+02:00</lastmod>
     </url>
 </urlset>
